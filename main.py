@@ -21,31 +21,60 @@ TEXT = {
     '13': '样品为样版标签，标签审核内容不包括生产日期字符高度及格式，以实物印刷为准。\n标签审核内容不包括标示内容真实性的核实。',
     '14': '经抽样检验，所检项目序号“XXX”无限量要求，不作判定，所检其余项目',
     '15': '本报告代替编号为XXX的检测报告，原报告作废。',
+    '16': '该阳性样品验证结果：不一致。',
+    '17': '多氯联苯以 PCB28、PCB52、PCB101、PCB118、PCB138、PCB153 和 PCB180 总和计。',
+}
+
+LIMIT = {
+    '香菇': ('91.7', '', '1', '0.5', '0.5', '0.1', '0'),
+    '鲜枣': ('67.4', '', '0.1', '0', '0.05', '0', '0'),
+    '葡萄': ('88.5', '', '0.2', '0', '0.05', '0', '0'),
+    '木耳': ('91.8', '', '1', '0.5', '0.2', '0.1', '0'),
+    '大白菜': ('94.4', '', '0.3', '0.5', '0.2', '0.01', '0'),
+    '黄花菜': ('40.3', '', '0.1', '0.5', '0.2', '0.01', '0'),
+    '芥菜': ('91.5', '', '0.3', '0.5', '0.2', '0.01', '0'),
+    '豆角': ('90.0', '', '0.2', '0.5', '0.1', '0.01', '0'),
+    '鲢鱼': ('77.4', '', '0.5', '0', '0.1', '0', '0'),
+    '青鳞鱼': ('73.9', '', '0.5', '0', '0.1', '0', '0'),
+    '鱿鱼': ('80.4', '', '1.0', '0', '0.1', '0', '0'),
+    '柠檬': ('91.0', '', '0.1', '0', '0', '0', '0'),
+    '柚': ('89.0', '', '0.1', '0', '0', '0', '0'),
+    '西柚': ('90.9', '', '0.1', '0', '0', '0', '0'),
+    '猪肉': ('71.0', '', '0.2', '0', '0.1', '0', '1'),
+    '食用菌': ('', '', '1', '0.5', '0.2', '0.1', '0'),
 }
 
 
-def valid_numbers(numbers):
-    if numbers[0] != '0':
-        return 1
-    numbers = numbers.lstrip('0')
-    numbers = numbers.rstrip('0')
-    return len(numbers) - 1
+def valid_numbers(text, min_=False):
+    if text.endswith('.0'):
+        return '.0'
+    elif text.endswith('.00'):
+        return '.00'
+    elif text.endswith('.000'):
+        return '.000'
+    text = text.lstrip('0')
+    text = text.rstrip('0')
+    if '.' not in text:
+        return {True: '.0', False: '1.'}[min_]
+    length = len(text[text.index('.') + 1:])
+    length = min(length, 4)
+    return '.' + '0' * length
 
 
 def home():
     layout = [
-        [sg.Button('营养成分表(基础)', size=(16, 2), font=('微软雅黑', 12))],
-        [sg.Button('营养成分表(详细)', size=(16, 2), font=('微软雅黑', 12))],
-        [sg.Button('脱水率计算', size=(16, 2), font=('微软雅黑', 12))],
-        [sg.Button('固体饮料计算', size=(16, 2), font=('微软雅黑', 12))],
-        [sg.Button('常用剪贴板', size=(16, 2), font=('微软雅黑', 12))],
-    ]
+        [sg.Button('营养成分表(基础)', size=(16, 2), font=('微软雅黑', 12)),
+         sg.Button('营养成分表(详细)', size=(16, 2), font=('微软雅黑', 12))],
+        [sg.Button('脱水率计算', size=(16, 2), font=('微软雅黑', 12)),
+         sg.Button('固体饮料计算', size=(16, 2), font=('微软雅黑', 12))],
+        [sg.Button('常用剪贴板', size=(16, 2), font=('微软雅黑', 12)),
+         sg.Button('工具说明', size=(16, 2), font=('微软雅黑', 12))], ]
     return sg.Window(
-        '小工具 beta',
+        '报告编辑部小工具',
         layout,
         size=(
-            260,
-            300),
+            405,
+            210),
         text_justification='center',
         element_justification='center',
         finalize=True)
@@ -60,11 +89,11 @@ def nutrition_win():
         [sg.Text('钠', font=('微软雅黑', 12))],
     ]
     rc_12 = [
-        [sg.Input(key='00', size=(10, 0), font=('微软雅黑', 12))],
-        [sg.Input(key='01', size=(10, 0), font=('微软雅黑', 12))],
-        [sg.Input(key='02', size=(10, 0), font=('微软雅黑', 12))],
-        [sg.Input(key='03', size=(10, 0), font=('微软雅黑', 12))],
-        [sg.Input(key='04', size=(10, 0), font=('微软雅黑', 12))],
+        [sg.Input(key='00', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input(key='01', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input(key='02', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input(key='03', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input(key='04', size=(10, 1), font=('微软雅黑', 12))],
     ]
     rc_13 = [
         [sg.Text(key='10', size=(5, 1), font=('微软雅黑', 12))],
@@ -101,7 +130,9 @@ def nutrition_win():
          sg.Frame(layout=rc_14, title='NRV%(原始)', font=('微软雅黑', 12)),
          sg.Frame(layout=rc_15, title='NRV%(修约)', font=('微软雅黑', 12)),
          sg.Frame(layout=rc_16, title='单位', font=('微软雅黑', 12))],
-        [sg.Button('计算', key='计算', font=('微软雅黑', 12)), sg.Button('清空', key='清空', font=('微软雅黑', 12))],
+        [sg.Button('从剪贴板导入', key='导入', font=('微软雅黑', 12)),
+         sg.Button('计算', key='计算', font=('微软雅黑', 12)),
+         sg.Button('清空', key='清空', font=('微软雅黑', 12))],
         [sg.StatusBar('运行正常', justification='center', key='status', font=('微软雅黑', 12), size=(10, 1))],
     ]
     return sg.Window(
@@ -120,7 +151,7 @@ def nutrition(window):
         event_n, values_n = window_item.read()
         if event_n == '-WINDOW CLOSE ATTEMPTED-':
             window_item.close()
-            window.un_hide()
+            window.UnHide()
             return window
         elif event_n in ['计算', '\r']:
             try:
@@ -135,32 +166,42 @@ def nutrition(window):
             standard = [
                 decimal.Decimal(i) for i in (
                     '8400', '60', '60', '300', '2000')]
-            for i, j in zip((0, 1, 2, 3, 4), (0, 1, 1, 1, 0)):
+            for i, j in zip((0, 1, 2, 3, 4), ('1.', '.0', '.0', '.0', '1.')):
                 if numbers[i] > limit[i]:
-                    num = round(numbers[i], j)
+                    num = numbers[i].quantize(
+                        decimal.Decimal(j), rounding=decimal.ROUND_HALF_EVEN)
                     window_item.find_element('1' + str(i)).update(num)
                     window_item.find_element(
                         '2' +
                         str(i)).update(
                         '%.2f%%' %
-                        (round(
-                            num /
-                            standard[i],
-                            4) *
-                         100))
+                        ((num /
+                          standard[i]) *
+                         decimal.Decimal('100')).quantize(
+                            decimal.Decimal('.0000'),
+                            rounding=decimal.ROUND_HALF_EVEN))
                     window_item.find_element(
                         '3' +
                         str(i)).update(
                         '%.0f%%' %
-                        (round(
-                            num /
-                            standard[i],
-                            2) *
-                         100))
+                        ((num /
+                          standard[i]) *
+                         decimal.Decimal('100')).quantize(
+                            decimal.Decimal('.00'),
+                            rounding=decimal.ROUND_HALF_EVEN))
                 else:
                     window_item.find_element('1' + str(i)).update('0')
                     window_item.find_element('2' + str(i)).update('0%')
                     window_item.find_element('3' + str(i)).update('0%')
+        elif event_n == '导入':
+            data = pyperclip.paste()
+            data = data.split('\r\n')
+            if len(data) == 5:
+                for i, j in zip((0, 1, 2, 3, 4), data):
+                    window_item.find_element('0' + str(i)).update(j)
+                window_item.find_element('status').update('导入成功！')
+            else:
+                window_item.find_element('status').update('导入失败！')
         elif event_n == '清空':
             for i in range(5):
                 window_item.find_element('0' + str(i)).update('')
@@ -283,7 +324,8 @@ def nutrition_plus_win():
          sg.Frame(layout=rc_14, title='NRV%(原始)', font=('微软雅黑', 12)),
          sg.Frame(layout=rc_15, title='NRV%(修约)', font=('微软雅黑', 12)),
          sg.Frame(layout=rc_16, title='单位', font=('微软雅黑', 12))],
-        [sg.Button('计算', key='计算', font=('微软雅黑', 12)), sg.Button('清空', key='清空', font=('微软雅黑', 12))],
+        [sg.Button('从剪贴板导入', key='导入', font=('微软雅黑', 12)),
+         sg.Button('计算', key='计算', font=('微软雅黑', 12)), sg.Button('清空', key='清空', font=('微软雅黑', 12))],
         [sg.StatusBar('运行正常', justification='center', key='status', font=('微软雅黑', 12), size=(10, 1))],
     ]
     return sg.Window(
@@ -302,7 +344,7 @@ def nutrition_plus(window):
         event_np, values_np = window_item.read()
         if event_np == '-WINDOW CLOSE ATTEMPTED-':
             window_item.close()
-            window.un_hide()
+            window.UnHide()
             return window
         elif event_np in ['计算', '\r']:
             try:
@@ -348,35 +390,47 @@ def nutrition_plus(window):
                     '15',
                     '15',
                     '50')]
-            for i, j in zip((0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
-                            (0, 1, 1, 1, 0, 1, 2, 2, 2, 1, 0, 0, 0, 1, 2, 1)):
+            for i, j in zip((0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15), ('1.', '.0', '.0',
+                                                                                     '.0', '1.', '.0', '.00', '.00',
+                                                                                     '.00', '.0', '1.', '1.', '1.',
+                                                                                     '.0', '.00', '.0')):
                 if numbers[i] > limit[i]:
-                    num = round(numbers[i], j)
+                    num = numbers[i].quantize(
+                        decimal.Decimal(j), rounding=decimal.ROUND_HALF_EVEN)
                     window_item.find_element('1' + str(i).zfill(2)).update(num)
                     window_item.find_element(
                         '2' +
                         str(i).zfill(2)).update(
                         '%.2f%%' %
-                        (round(
-                            num /
-                            standard[i],
-                            4) *
-                         100))
+                        ((num /
+                          standard[i]) *
+                         decimal.Decimal('100')).quantize(
+                            decimal.Decimal('.0000'),
+                            rounding=decimal.ROUND_HALF_EVEN))
                     window_item.find_element(
                         '3' +
                         str(i).zfill(2)).update(
                         '%.0f%%' %
-                        (round(
-                            num /
-                            standard[i],
-                            2) *
-                         100))
+                        ((num /
+                          standard[i]) *
+                         decimal.Decimal('100')).quantize(
+                            decimal.Decimal('.00'),
+                            rounding=decimal.ROUND_HALF_EVEN))
                 else:
                     window_item.find_element('1' + str(i).zfill(2)).update('0')
                     window_item.find_element(
                         '2' + str(i).zfill(2)).update('0%')
                     window_item.find_element(
                         '3' + str(i).zfill(2)).update('0%')
+        elif event_np == '导入':
+            data = pyperclip.paste()
+            data = data.split('\r\n')
+            if len(data) == 5:
+                for i, j in zip((0, 1, 2, 3, 4), data):
+                    window_item.find_element('00' + str(i)).update(j)
+                window_item.find_element('status').update('导入成功！')
+            else:
+                window_item.find_element('status').update('导入失败！')
         elif event_np == '清空':
             for i in range(5):
                 window_item.find_element('0' + str(i).zfill(2)).update('')
@@ -387,16 +441,16 @@ def nutrition_plus(window):
 
 def dehydration_win():
     rc_11 = [
-        [sg.Text('新鲜水分', font=('微软雅黑', 12))],
+        [sg.Text('鲜品水分', font=('微软雅黑', 12))],
         [sg.Text('本品水分', font=('微软雅黑', 12))],
         [sg.Text('铅', font=('微软雅黑', 12))],
         [sg.Text('总砷', font=('微软雅黑', 12))],
         [sg.Text('镉', font=('微软雅黑', 12))],
         [sg.Text('总汞', font=('微软雅黑', 12))],
         [sg.Text('铬', font=('微软雅黑', 12))],
-        [sg.Text('手动输入一', font=('微软雅黑', 12))],
-        [sg.Text('手动输入二', font=('微软雅黑', 12))],
-        [sg.Text('手动输入三', font=('微软雅黑', 12))],
+        [sg.Text('其他限值一', font=('微软雅黑', 12))],
+        [sg.Text('其他限值二', font=('微软雅黑', 12))],
+        [sg.Text('其他限值三', font=('微软雅黑', 12))],
     ]
     rc_12 = [
         [sg.Input(key='00', size=(10, 1), font=('微软雅黑', 12))],
@@ -434,14 +488,25 @@ def dehydration_win():
         [sg.Text(key='28', size=(10, 1), font=('微软雅黑', 12))],
         [sg.Text(key='29', size=(10, 1), font=('微软雅黑', 12))],
     ]
+    rc_21 = [
+        [sg.Button('香菇', key='香菇', font=('微软雅黑', 10)), sg.Button('鲜枣', key='鲜枣', font=('微软雅黑', 10)),
+         sg.Button('葡萄', key='葡萄', font=('微软雅黑', 10)), sg.Button('木耳/银耳', key='木耳', font=('微软雅黑', 10)),
+         sg.Button('大白菜', key='大白菜', font=('微软雅黑', 10)), sg.Button('黄花菜', key='黄花菜', font=('微软雅黑', 10)),
+         sg.Button('芥菜', key='芥菜', font=('微软雅黑', 10)), sg.Button('青鳞鱼', key='青鳞鱼', font=('微软雅黑', 10))],
+        [sg.Button('鲢鱼', key='鲢鱼', font=('微软雅黑', 10)), sg.Button('豆角', key='豆角', font=('微软雅黑', 10)),
+         sg.Button('鱿鱼', key='鱿鱼', font=('微软雅黑', 10)), sg.Button('柠檬', key='柠檬', font=('微软雅黑', 10)),
+         sg.Button('柚', key='柚', font=('微软雅黑', 10)), sg.Button('西柚', key='西柚', font=('微软雅黑', 10)),
+         sg.Button('猪肉', key='猪肉', font=('微软雅黑', 10)), sg.Button('食用菌(除香菇外)', key='食用菌', font=('微软雅黑', 10))],
+    ]
     layout = [
         [sg.Frame(layout=rc_11, title='项目', font=('微软雅黑', 12)),
          sg.Frame(layout=rc_12, title='数值', font=('微软雅黑', 12)),
          sg.Frame(layout=rc_13, title='结果(原始)', font=('微软雅黑', 12)),
-         sg.Frame(layout=rc_14, title='结果(修约)', font=('微软雅黑', 12)),
-         [sg.Button('计算', key='计算', font=('微软雅黑', 12)), sg.Button('清空', key='清空', font=('微软雅黑', 12))],
-         [sg.StatusBar('准备就绪', justification='center', key='status', font=('微软雅黑', 12), size=(10, 1))],
-         ]
+         sg.Frame(layout=rc_14, title='结果(修约)', font=('微软雅黑', 12))],
+        [sg.StatusBar('准备就绪', justification='center', key='status', font=('微软雅黑', 12), size=(10, 1))],
+        [sg.Button('计算', key='计算', font=('微软雅黑', 12)), sg.Button('清空', key='清空', font=('微软雅黑', 12)),
+         sg.Button('复制备注', key='备注', font=('微软雅黑', 12))],
+        [sg.Frame(layout=rc_21, title='常见样品', font=('微软雅黑', 12))]
     ]
     return sg.Window(
         '脱水率计算',
@@ -455,11 +520,12 @@ def dehydration_win():
 def dehydration(window):
     window.Hide()
     window_item = dehydration_win()
+    status = False
     while True:
         event_d, values_d = window_item.read()
         if event_d == '-WINDOW CLOSE ATTEMPTED-':
             window_item.close()
-            window.un_hide()
+            window.UnHide()
             return window
         elif event_d in ['计算', '\r']:
             try:
@@ -470,27 +536,83 @@ def dehydration(window):
                 continue
             fresh = decimal.Decimal(numbers[0])
             real = decimal.Decimal(numbers[1])
+            if fresh < real or real == decimal.Decimal('100'):
+                window_item.find_element('status').update('输入数值无效！')
+                continue
             if fresh == decimal.Decimal('100'):
                 result = real / decimal.Decimal('100')
             else:
                 result = ((fresh - real) / (decimal.Decimal('100') - real))
             window_item.find_element('status').update(
-                '脱水率：%.1f%%' % (round(result, 3) * 100))
-            window_item.find_element('10').update('%.1f%%' % round(fresh, 1))
-            window_item.find_element('11').update('%.1f%%' % round(real, 1))
-            for i, j in zip((2, 3, 4, 5, 6, 7, 8, 9), numbers[2:]):
+                '脱水率：%.1f%%' %
+                (result *
+                 decimal.Decimal('100')).quantize(
+                    decimal.Decimal('.000'),
+                    rounding=decimal.ROUND_HALF_EVEN))
+            window_item.find_element('10').update(
+                '%.1f%%' %
+                fresh.quantize(
+                    decimal.Decimal('.0'),
+                    rounding=decimal.ROUND_HALF_EVEN))
+            window_item.find_element('11').update(
+                '%.1f%%' %
+                real.quantize(
+                    decimal.Decimal('.000'),
+                    rounding=decimal.ROUND_HALF_EVEN))
+            for i, j in zip((2, 3, 4, 5, 6, 7, 8, 9, 10), numbers[2:]):
                 if numbers[i] > decimal.Decimal('0'):
-                    length = valid_numbers(str(numbers[i]))
+                    length = valid_numbers(str(numbers[i])) + '0'
                     window_item.find_element(
-                        '1' + str(i)).update(round(numbers[i] / (1 - result), 6))
+                        '1' + str(i)).update((numbers[i] / (1 - result)).quantize(decimal.Decimal('.000000'),
+                                                                                  rounding=decimal.ROUND_HALF_EVEN))
                     window_item.find_element(
-                        '2' + str(i)).update(round(numbers[i] / (1 - result), length))
+                        '2' +
+                        str(i)).update(
+                        (numbers[i] /
+                         (
+                                 1 -
+                                 result)).quantize(
+                            decimal.Decimal(length),
+                            rounding=decimal.ROUND_HALF_EVEN))
                 else:
                     window_item.find_element('1' + str(i)).update('0')
                     window_item.find_element('2' + str(i)).update('0')
+            status = True
         elif event_d == '清空':
-            for i in range(9):
+            for i in range(10):
                 window_item.find_element('0' + str(i)).update('0')
+            window_item.find_element('status').update('准备就绪')
+            status = False
+        elif event_d == '备注':
+            if not status:
+                window_item.find_element('status').update('复制备注失败！')
+                continue
+            del values_d['status']
+            numbers = [decimal.Decimal(i) for i in values_d.values()]
+            fresh = decimal.Decimal(numbers[0])
+            real = decimal.Decimal(numbers[1])
+            if fresh == decimal.Decimal('100'):
+                result = real / decimal.Decimal('100')
+                text = '根据委托单位提供该产品的脱水率为%.1f%%。以此为依据，折算该样品XXX限量为XXXmg/kg。' % (result * decimal.Decimal(
+                    '100')).quantize(decimal.Decimal('.000'), rounding=decimal.ROUND_HALF_EVEN)
+            else:
+                result = (fresh - real) / (decimal.Decimal('100') - real)
+                text = '根据《中国食物成分表》中XXX水分含量%.1f%%，本品水分含量为%.1f%%，经过计算得出该产品的脱水率为%.1f%%。' \
+                       '以此为依据，折算该样品XXX限量为XXXmg/kg。' % \
+                       (fresh, real, (result * 100).quantize(decimal.Decimal('.000'), rounding=decimal.ROUND_HALF_EVEN))
+            pyperclip.copy(text)
+            window_item.find_element('status').update(
+                '脱水率：%.1f%%，复制备注成功！' %
+                (result *
+                 decimal.Decimal('100')).quantize(
+                    decimal.Decimal('.000'),
+                    rounding=decimal.ROUND_HALF_EVEN))
+        elif event_d in LIMIT.keys():
+            for i in range(7):
+                window_item.find_element(
+                    '0' +
+                    str(i)).update(
+                    LIMIT[event_d][i])
             window_item.find_element('status').update('准备就绪')
 
 
@@ -504,6 +626,8 @@ def clipboard_win():
         [sg.Button('761 DDT检测限', key='03', font=('微软雅黑', 10))],
         [sg.Button('5009.19 666检测限', key='04', font=('微软雅黑', 10))],
         [sg.Button('5009.19 DDT检测限', key='05', font=('微软雅黑', 10))],
+        [sg.Button('阳性验证结论', key='16', font=('微软雅黑', 10))],
+        [sg.Button('多氯联苯备注', key='17', font=('微软雅黑', 10))],
     ]
     rc_12 = [
         [sg.Button('格式标签-预包装', key='06', font=('微软雅黑', 10))],
@@ -534,10 +658,135 @@ def clipboard(window):
         event_d, values_d = window_item.read()
         if event_d == '-WINDOW CLOSE ATTEMPTED-':
             window_item.close()
-            window.un_hide()
+            window.UnHide()
             return window
-        elif event_d in [str(i).zfill(2) for i in range(16)]:
+        elif event_d in [str(i).zfill(2) for i in range(18)]:
             pyperclip.copy(TEXT[event_d])
+
+
+def solid_drink_win():
+    rc_11 = [
+        [sg.Text('样品', font=('微软雅黑', 12))],
+        [sg.Text('水', font=('微软雅黑', 12))],
+        [sg.Text('限值一', font=('微软雅黑', 12))],
+        [sg.Text('限值二', font=('微软雅黑', 12))],
+        [sg.Text('限值三', font=('微软雅黑', 12))],
+        [sg.Text('限值四', font=('微软雅黑', 12))],
+        [sg.Text('限值五', font=('微软雅黑', 12))],
+    ]
+    rc_12 = [
+        [sg.Input('0', key='00', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input('0', key='01', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input('0', key='02', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input('0', key='03', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input('0', key='04', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input('0', key='05', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Input('0', key='06', size=(10, 1), font=('微软雅黑', 12))],
+    ]
+    rc_13 = [
+        [sg.Text(size=(5, 1), font=('微软雅黑', 12))],
+        [sg.Text(size=(5, 1), font=('微软雅黑', 12))],
+        [sg.Text(key='12', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Text(key='13', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Text(key='14', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Text(key='15', size=(10, 1), font=('微软雅黑', 12))],
+        [sg.Text(key='16', size=(10, 1), font=('微软雅黑', 12))],
+    ]
+    layout = [
+        [sg.Frame(layout=rc_11, title='项目', font=('微软雅黑', 12)),
+         sg.Frame(layout=rc_12, title='原始数值', font=('微软雅黑', 12)),
+         sg.Frame(layout=rc_13, title='结果数值', font=('微软雅黑', 12))],
+        [sg.Button('计算', key='计算', font=('微软雅黑', 12)),
+         sg.Button('清空', key='清空', font=('微软雅黑', 12))],
+        [sg.StatusBar('运行正常', justification='center',
+                      key='status', font=('微软雅黑', 12), size=(10, 1))],
+    ]
+    return sg.Window(
+        '固体饮料计算',
+        layout,
+        enable_close_attempted_event=True,
+        element_justification='center',
+        finalize=True,
+        return_keyboard_events=True)
+
+
+def solid_drink(window):
+    window.Hide()
+    window_item = solid_drink_win()
+    while True:
+        event_s, values_s = window_item.read()
+        if event_s == '-WINDOW CLOSE ATTEMPTED-':
+            window_item.close()
+            window.UnHide()
+            return window
+        elif event_s in ['计算', '\r']:
+            try:
+                del values_s['status']
+                numbers = [decimal.Decimal(i) for i in values_s.values()]
+                window_item.find_element('status').update('运行正常')
+            except decimal.InvalidOperation:
+                window_item.find_element('status').update('输入数值无效！')
+                continue
+            multiple = (numbers[0] + numbers[1]) / numbers[0]
+            length_m = valid_numbers(str(multiple), min_=True)
+            window_item.find_element('status').update(
+                '倍数：%s' %
+                multiple.quantize(
+                    decimal.Decimal(length_m),
+                    rounding=decimal.ROUND_HALF_EVEN))
+            for i, j in zip((2, 3, 4, 5, 6), numbers[2:]):
+                if numbers[i] > decimal.Decimal('0'):
+                    result = numbers[i] * multiple
+                    length_r = valid_numbers(str(result), min_=True)
+                    window_item.find_element(
+                        '1' +
+                        str(i)).update(
+                        result.quantize(
+                            decimal.Decimal(length_r),
+                            rounding=decimal.ROUND_HALF_EVEN))
+                else:
+                    window_item.find_element('1' + str(i)).update('0')
+        elif event_s == '清空':
+            for i in range(7):
+                window_item.find_element('0' + str(i)).update('0')
+            window_item.find_element('status').update('运行正常')
+
+
+def readme_win():
+    layout = [
+        [sg.Text('工具说明', font=('微软雅黑', 16))],
+        [sg.Text('本工具的数值修约规则均为四舍六入五成双', font=('微软雅黑', 12))],
+        [sg.Text('营养成分表：NRV%均使用修约数值进行计算', font=('微软雅黑', 12))],
+        [sg.Text('从剪贴板导入：复制Word文档中营养成分表数值，', font=('微软雅黑', 12))],
+        [sg.Text('再点击导入按钮，即可自动填充数值；目前仅支持', font=('微软雅黑', 12))],
+        [sg.Text('导入能量、蛋白质、脂肪、碳水化合物、钠的数值', font=('微软雅黑', 12))],
+        [sg.Text('脱水率计算：点击样品按钮可填充对应常用数值', font=('微软雅黑', 12))],
+        [sg.Text('脱水率计算公式：(鲜品水分-本品水分)÷(1-本品水分)', font=('微软雅黑', 12))],
+        [sg.Text('脱水率相关限值折算公式：项目限值÷（1-脱水率）', font=('微软雅黑', 12))],
+        [sg.Text('已知脱水率：鲜品水分输入100，本品水分输入脱水率', font=('微软雅黑', 12))],
+        [sg.Text('脱水率备注：智能复制相对应的脱水率备注内容', font=('微软雅黑', 12))],
+        [sg.Text('固体饮料计算：结果数值超过四位小数自动修约', font=('微软雅黑', 12))],
+        [sg.Text('固体饮料计算公式：((样品量+水)÷样品量)×限值', font=('微软雅黑', 12))],
+        [sg.Text('常用剪贴板：点击按钮即可复制对应内容', font=('微软雅黑', 12))],
+        [sg.Text('版本号：0.0.1', font=('微软雅黑', 12))],
+    ]
+    return sg.Window(
+        '工具说明',
+        layout,
+        enable_close_attempted_event=True,
+        element_justification='center',
+        finalize=True)
+
+
+def readme(window):
+    window.Hide()
+    window_item = readme_win()
+    while True:
+        event_d, values_d = window_item.read()
+        if event_d == '-WINDOW CLOSE ATTEMPTED-':
+            window_item.close()
+            window.UnHide()
+            return window
 
 
 def main():
@@ -555,9 +804,30 @@ def main():
             window = dehydration(window)
         elif event == '常用剪贴板':
             window = clipboard(window)
-        elif event == '限值查询':
-            pass
+        elif event == '固体饮料计算':
+            window = solid_drink(window)
+        elif event == '工具说明':
+            window = readme(window)
+
+
+def valid_numbers_test():
+    print(valid_numbers('1.0'))
+    print(valid_numbers('0.1'))
+    print(valid_numbers('0.01'))
+    print(valid_numbers('0.001'))
+    print(valid_numbers('0.0001'))
+    print(valid_numbers('0.00001'))
+    print(valid_numbers('5'))
+    print(valid_numbers('25'))
+    print(valid_numbers('5', min_=True))
+    print(valid_numbers('25', min_=True))
+    print(valid_numbers('25.05', min_=True))
+    print(valid_numbers('0.200'))
+    print(valid_numbers('00.200'))
+    print(valid_numbers('5.0'))
+    print(valid_numbers('1.5'))
 
 
 if __name__ == '__main__':
     main()
+    # valid_numbers_test()
