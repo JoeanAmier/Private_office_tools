@@ -233,7 +233,7 @@ def nutrition(window):
                     window_item.find_element('1' + str(i)).update('0')
                     window_item.find_element('2' + str(i)).update('0%')
                     window_item.find_element('3' + str(i)).update('0%')
-            energy = (energy[0] * decimal.Decimal('17')) + (energy[1] * \
+            energy = (energy[0] * decimal.Decimal('17')) + (energy[1] *
                                                             decimal.Decimal('37')) + (energy[2] * decimal.Decimal('17'))
             energy_round = energy.quantize(
                 decimal.Decimal('1.'),
@@ -489,7 +489,7 @@ def nutrition_plus(window):
                         '2' + str(i).zfill(2)).update('0%')
                     window_item.find_element(
                         '3' + str(i).zfill(2)).update('0%')
-            energy = (energy[0] * decimal.Decimal('17')) + (energy[1] * \
+            energy = (energy[0] * decimal.Decimal('17')) + (energy[1] *
                                                             decimal.Decimal('37')) + (energy[2] * decimal.Decimal('17'))
             energy_round = energy.quantize(
                 decimal.Decimal('1.'),
@@ -677,7 +677,7 @@ def dehydration(window):
             numbers = [decimal.Decimal(i) for i in values_d.values()]
             fresh = decimal.Decimal(numbers[0])
             real = decimal.Decimal(numbers[1])
-            items = '，'.join(['%s限量为%smg/kg' % i for i in remark])
+            items = '，'.join('%s限量为%smg/kg' % i for i in remark)
             if fresh == decimal.Decimal('100'):
                 result = real / decimal.Decimal('100')
                 text = '根据委托单位提供该产品的脱水率为%.1f%%。以此为依据，折算该样品%s。' % ((result * decimal.Decimal(
