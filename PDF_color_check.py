@@ -4,7 +4,7 @@ import time
 import fitz
 from skimage.io import imread
 
-zoom = 1
+zoom = 0.5
 mat = fitz.Matrix(zoom, zoom)
 ROOT = os.getcwd() + '\\cache\\'
 
@@ -26,16 +26,18 @@ def read_img(file):
     all_ = 0
     for i in range(height):
         for j in range(width):
-            if img[i, j, 0] <= 140:
+            if img[i, j, 0] < 150:
                 continue
-            if img[i, j, 1] >= 135:
+            if img[i, j, 1] > 155:
                 continue
-            if img[i, j, 2] >= 125:
+            if img[i, j, 2] > 140:
                 continue
+            if all_ > 5:
+                os.remove(cache)
+                return True
             all_ += 1
     os.remove(cache)
-    # print(all_)  # 调试使用
-    return all_ > 10
+    return False
 
 
 def get_file(filename):
@@ -63,6 +65,7 @@ def save_log(log):
 
 def main():
     print('本程序自动获取当前目录 PDF 文件，并识别文件状态！')
+    print('小工具版本号：0.0.1')
     print('=' * 33)
     start = time.time()
     if not os.path.exists(ROOT):
