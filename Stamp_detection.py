@@ -64,7 +64,7 @@ def stamp_ocr(img):
     erode = cv2.erode(gray, kernel)
     kernel = np.ones((3, 3), np.uint8)
     expand = cv2.dilate(erode, kernel)
-    # cv2.imshow('5', expand)
+    # cv2.imshow('检测前图像', expand)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
     circles = cv2.HoughCircles(
@@ -84,7 +84,7 @@ def stamp_ocr(img):
         #     y = int(circle[1])
         #     r = int(circle[2])
         #     img = cv2.circle(img, (x, y), r, (255, 0, 0), 2, 8, 0)
-        # cv2.imshow('5', img)
+        # cv2.imshow('识别结果', img)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
         # return True
