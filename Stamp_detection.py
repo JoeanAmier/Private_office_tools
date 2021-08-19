@@ -77,15 +77,17 @@ def stamp_ocr(img):
         minRadius=5,
         maxRadius=35)
     try:
-        for circle in circles[0]:
-            x = int(circle[0])
-            y = int(circle[1])
-            r = int(circle[2])
-            img = cv2.circle(img, (x, y), r, (255, 0, 0), 2, 8, 0)
+        for _ in circles[0]:
+            return True
+        # for circle in circles[0]:
+        #     x = int(circle[0])
+        #     y = int(circle[1])
+        #     r = int(circle[2])
+        #     img = cv2.circle(img, (x, y), r, (255, 0, 0), 2, 8, 0)
         # cv2.imshow('5', img)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
-        return True
+        # return True
     except TypeError:
         return False
 
@@ -112,7 +114,7 @@ def save_log(log):
 
 def main():
     print('本程序自动获取当前目录 PDF 文件，并识别文件状态！')
-    print('小工具版本号：0.0.3')
+    print('小工具版本号：0.0.4')
     print('=' * 33)
     start = time.time()
     if not os.path.exists(ROOT):
