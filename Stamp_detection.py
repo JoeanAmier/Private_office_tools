@@ -83,12 +83,13 @@ def stamp_ocr(img):
         #     x = int(circle[0])
         #     y = int(circle[1])
         #     r = int(circle[2])
-        #     img = cv2.circle(img, (x, y), r, (255, 0, 0), 2, 8, 0)
+        #     img = cv2.circle(img, (x, y), r, (0, 0, 255), 2, 8, 0)
         # cv2.imshow('识别结果', img)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
         # return True
     except TypeError:
+        # print('识别圆形失败！')
         return False
 
 
