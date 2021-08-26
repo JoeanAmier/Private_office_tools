@@ -1,4 +1,5 @@
 import decimal
+import webbrowser
 
 import PySimpleGUI as sg
 import pyperclip
@@ -95,12 +96,13 @@ def home():
     layout = [
         [sg.Button('营养成分表(基础)', size=(16, 2), font=('微软雅黑', 12)),
          sg.Button('营养成分表(详细)', size=(16, 2), font=('微软雅黑', 12))],
-        [sg.Button('脱水率计算', size=(16, 2), font=('微软雅黑', 12)),
-         sg.Button('固体饮料计算', size=(16, 2), font=('微软雅黑', 12))],
-        [sg.Button('常用剪贴板', size=(16, 2), font=('微软雅黑', 12)),
-         sg.Button('必看说明', size=(16, 2), font=('微软雅黑', 12))], ]
+        [sg.Button('脱水率及限值计算', size=(16, 2), font=('微软雅黑', 12)),
+         sg.Button('固体饮料限值计算', size=(16, 2), font=('微软雅黑', 12))],
+        [sg.Button('常用文本剪贴板', size=(16, 2), font=('微软雅黑', 12)),
+         sg.Button('工具详细说明\n(通过浏览器访问)', size=(16, 2), font=('微软雅黑', 12))],
+    ]
     return sg.Window(
-        '报告编辑部小工具 V0.0.6',
+        '报告编辑部小工具 V0.0.7',
         layout,
         size=(
             405,
@@ -594,7 +596,7 @@ def dehydration_win():
         [sg.Frame(layout=rc_21, title='常见样品', font=('微软雅黑', 12))]
     ]
     return sg.Window(
-        '脱水率计算',
+        '脱水率及限值计算',
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
@@ -739,7 +741,7 @@ def clipboard_win():
          sg.Frame(layout=rc_13, title='标签备注', font=('微软雅黑', 12))],
     ]
     return sg.Window(
-        '常用剪贴板',
+        '常用文本剪贴板（点击按钮复制相应文本）',
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
@@ -817,7 +819,7 @@ def solid_drink_win():
         [sg.Frame(layout=rc_21, title='常见固体饮料', font=('微软雅黑', 12))],
     ]
     return sg.Window(
-        '固体饮料计算',
+        '固体饮料限值计算',
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
@@ -897,47 +899,6 @@ def solid_drink(window):
             remark = None
 
 
-def readme_win():
-    layout = [
-        [sg.Text('工具说明', font=('微软雅黑', 16))],
-        [sg.Text('本工具的数值修约规则均为四舍六入五成双', font=('微软雅黑', 12))],
-        [sg.Text('营养成分表：NRV%均使用修约数值进行计算', font=('微软雅黑', 12))],
-        [sg.Text('营养成分表：0.5%~1.0%的NRV%数值修约为1%', font=('微软雅黑', 12))],
-        [sg.Text('能量计算公式：蛋白质×17+脂肪×37+碳水化合物×17', font=('微软雅黑', 12))],
-        [sg.Text('从剪贴板导入：复制Word文档中营养成分表数值，', font=('微软雅黑', 12))],
-        [sg.Text('再点击导入按钮，即可自动填充数值；目前仅支持', font=('微软雅黑', 12))],
-        [sg.Text('导入能量、蛋白质、脂肪、碳水化合物、钠的数值', font=('微软雅黑', 12))],
-        [sg.Text('脱水率计算：点击样品按钮可填充对应常用数值', font=('微软雅黑', 12))],
-        [sg.Text('脱水率计算公式：(鲜品水分-本品水分)÷(1-本品水分)', font=('微软雅黑', 12))],
-        [sg.Text('脱水率相关限值折算公式：项目限值÷（1-脱水率）', font=('微软雅黑', 12))],
-        [sg.Text('已知脱水率：鲜品水分输入100，本品水分输入脱水率', font=('微软雅黑', 12))],
-        [sg.Text('脱水率备注：智能复制相对应的脱水率备注内容', font=('微软雅黑', 12))],
-        [sg.Text('固体饮料计算：点击样品按钮可填充对应常用限值', font=('微软雅黑', 12))],
-        [sg.Text('固体饮料计算：结果数值超过四位小数自动修约', font=('微软雅黑', 12))],
-        [sg.Text('固体饮料计算公式：((样品量+水)÷样品量)×限值', font=('微软雅黑', 12))],
-        [sg.Text('常用剪贴板：点击按钮即可复制对应内容', font=('微软雅黑', 12))],
-        [sg.Text('《报告编辑部小工具》项目开源地址：', font=('微软雅黑', 12))],
-        [sg.Input('https://github.com/JoeanAmiee/Private_office_tools', readonly=True, font=('微软雅黑', 12))],
-    ]
-    return sg.Window(
-        '必看说明',
-        layout,
-        enable_close_attempted_event=True,
-        element_justification='center',
-        finalize=True)
-
-
-def readme(window):
-    window.Hide()
-    window_item = readme_win()
-    while True:
-        event_d, values_d = window_item.read()
-        if event_d == '-WINDOW CLOSE ATTEMPTED-':
-            window_item.close()
-            window.UnHide()
-            return window
-
-
 def main():
     sg.theme('GreenMono')
     window = home()
@@ -949,34 +910,16 @@ def main():
             window = nutrition(window)
         elif event == '营养成分表(详细)':
             window = nutrition_plus(window)
-        elif event == '脱水率计算':
+        elif event == '脱水率及限值计算':
             window = dehydration(window)
-        elif event == '常用剪贴板':
+        elif event == '常用文本剪贴板':
             window = clipboard(window)
-        elif event == '固体饮料计算':
+        elif event == '固体饮料限值计算':
             window = solid_drink(window)
-        elif event == '必看说明':
-            window = readme(window)
-
-
-def valid_numbers_test():
-    print(valid_numbers('1.0'))
-    print(valid_numbers('0.1'))
-    print(valid_numbers('0.01'))
-    print(valid_numbers('0.001'))
-    print(valid_numbers('0.0001'))
-    print(valid_numbers('0.00001'))
-    print(valid_numbers('5'))
-    print(valid_numbers('25'))
-    print(valid_numbers('5', min_=True))
-    print(valid_numbers('25', min_=True))
-    print(valid_numbers('25.05', min_=True))
-    print(valid_numbers('0.200'))
-    print(valid_numbers('00.200'))
-    print(valid_numbers('5.0'))
-    print(valid_numbers('1.5'))
+        elif event == '工具详细说明\n(通过浏览器访问)':
+            webbrowser.open(
+                'https://github.com/JoeanAmiee/Private_office_tools')
 
 
 if __name__ == '__main__':
     main()
-    # valid_numbers_test()
