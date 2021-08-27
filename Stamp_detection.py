@@ -5,16 +5,18 @@ import cv2
 import fitz
 import numpy as np
 
-zoom = 0.2
-mat = fitz.Matrix(zoom, zoom)
+ZOOM = 0.1
+MATRIX = fitz.Matrix(ZOOM, ZOOM)
 ROOT = './cache/'
+ERODE = np.ones((3, 3), np.uint8)
+EXPAND = np.ones((4, 4), np.uint8)
 
 
 def pdf_to_image(filename):
     doc = fitz.open(filename)
     for i in range(doc.page_count):
         page = doc[i]
-        img = page.getPixmap(matrix=mat, alpha=False)
+        img = page.getPixmap(matrix=MATRIX, alpha=False)
         img.writePNG(os.path.join(ROOT, "%s.png" % i))
     doc.close()
 
@@ -32,61 +34,60 @@ def read_img(num):
     img_1 = cv2.imread(file_1)
     img_2 = cv2.imread(file_2)
     img = img_2 - img_1
-    # cv2.imshow('处理前', img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    # view_image('处理前', img)
     height = img.shape[0]
     width = img.shape[1]
     for x in range(height):
         for y in range(width):
             if img[x, y, 0] <= 50 and img[x, y,
                                           1] <= 50 and img[x, y, 2] >= 200:
-                img[x, y, 0] = 0
-                img[x, y, 1] = 0
-                img[x, y, 2] = 0
+                modify_pixels(img, x, y, 0)
             else:
-                img[x, y, 0] = 255
-                img[x, y, 1] = 255
-                img[x, y, 2] = 255
-    # cv2.imshow('处理后', img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+                modify_pixels(img, x, y, 255)
+    # view_image('处理后', img)
     os.remove(file_1)
     os.remove(file_2)
     return stamp_ocr(img)
 
 
+def view_image(arg0, img):
+    cv2.imshow(arg0, img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+def modify_pixels(img, x, y, arg3):
+    img[x, y, 0] = arg3
+    img[x, y, 1] = arg3
+    img[x, y, 2] = arg3
+
+
 def stamp_ocr(img):
-    img = cv2.blur(img, (3, 3))
+    img = cv2.blur(img, (2, 2))
     img = cv2.fastNlMeansDenoisingColored(img, None, 15, 15, 7, 21)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    kernel = np.ones((6, 6), np.uint8)
-    erode = cv2.erode(gray, kernel)
-    kernel = np.ones((3, 3), np.uint8)
-    expand = cv2.dilate(erode, kernel)
-    # cv2.imshow('检测前图像', expand)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    erode = cv2.erode(gray, ERODE)
+    expand = cv2.dilate(erode, EXPAND)
+    # view_image('检测前图像', expand)
     circles = cv2.HoughCircles(
         expand,
         cv2.HOUGH_GRADIENT,
         1,
-        15,
+        10,
         param1=200,
-        param2=20,
+        param2=10,
         minRadius=5,
-        maxRadius=35)
+        maxRadius=15)
     try:
         for _ in circles[0]:
             return True
+        # print(len(circles[0]))
         # for circle in circles[0]:
         #     x = int(circle[0])
         #     y = int(circle[1])
         #     r = int(circle[2])
         #     img = cv2.circle(img, (x, y), r, (0, 0, 255), 2, 8, 0)
-        # cv2.imshow('识别结果', img)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        # view_image('识别结果', img)
         # return True
     except TypeError:
         # print('识别圆形失败！')
@@ -115,7 +116,7 @@ def save_log(log):
 
 def main():
     print('本程序自动获取当前目录 PDF 文件，并识别文件状态！')
-    print('小工具版本号：0.0.4')
+    print('小工具版本号：0.0.5')
     print('=' * 33)
     start = time.time()
     if not os.path.exists(ROOT):
