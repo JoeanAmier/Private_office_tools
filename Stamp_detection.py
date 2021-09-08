@@ -47,7 +47,10 @@ def read_img(num):
     # view_image('处理后', img)
     os.remove(file_1)
     os.remove(file_2)
-    return stamp_ocr(img)
+    result = stamp_ocr(img)
+    if not result:
+        result = stamp_ocr(img, deepen=3)
+    return result
 
 
 def view_image(arg0, img):
@@ -62,11 +65,13 @@ def modify_pixels(img, x, y, arg3):
     img[x, y, 2] = arg3
 
 
-def stamp_ocr(img):
+def stamp_ocr(img, deepen=0):
     img = cv2.blur(img, (2, 2))
     img = cv2.fastNlMeansDenoisingColored(img, None, 15, 15, 7, 21)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     erode = cv2.erode(gray, ERODE)
+    for _ in range(deepen):
+        erode = cv2.erode(erode, ERODE)
     expand = cv2.dilate(erode, EXPAND)
     # view_image('检测前图像', expand)
     circles = cv2.HoughCircles(
