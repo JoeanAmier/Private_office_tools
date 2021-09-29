@@ -5,10 +5,12 @@ import cv2
 import fitz
 import numpy as np
 
-ZOOM = 0.1
-MATRIX = fitz.Matrix(ZOOM, ZOOM)
+MATRIX = fitz.Matrix(0.2, 0.2)
 ROOT = './cache/'
-ERODE = np.ones((3, 3), np.uint8)
+LOWER_RED_1 = np.array([0, 5, 5])
+UPPER_RED_1 = np.array([10, 255, 255])
+LOWER_RED_2 = np.array([156, 5, 5])
+UPPER_RED_2 = np.array([180, 255, 255])
 EXPAND = np.ones((4, 4), np.uint8)
 
 
@@ -23,79 +25,80 @@ def pdf_to_image(filename):
 
 def deal_img(num):
     file = os.path.join(ROOT, f'{num}.png')
-    img = cv2.imread(file)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite(os.path.join(ROOT, f'{num}_g.png'), gray)
+    img = cv2.imdecode(np.fromfile(file, dtype=np.uint8), -1)
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    mask_1 = cv2.inRange(img_hsv, LOWER_RED_1, UPPER_RED_1)
+    mask_2 = cv2.inRange(img_hsv, LOWER_RED_2, UPPER_RED_2)
+    mask = mask_1 + mask_2
+    if sum(sum(i) for i in mask) < 200000:
+        expand = cv2.dilate(mask, EXPAND)
+        cv2.imwrite(file, expand)
+    else:
+        os.remove(file)
+        # print(f'{num + 1}未生成图像！')
 
 
 def read_img(num):
-    file_1 = os.path.join(ROOT, f'{num}.png')
-    file_2 = os.path.join(ROOT, f'{num}_g.png')
-    img_1 = cv2.imread(file_1)
-    img_2 = cv2.imread(file_2)
-    img = img_2 - img_1
-    # view_image('处理前', img)
-    height = img.shape[0]
-    width = img.shape[1]
-    for x in range(height):
-        for y in range(width):
-            if img[x, y, 0] <= 50 and img[x, y,
-                                          1] <= 50 and img[x, y, 2] >= 200:
-                modify_pixels(img, x, y, 0)
-            else:
-                modify_pixels(img, x, y, 255)
-    # view_image('处理后', img)
-    os.remove(file_1)
-    os.remove(file_2)
-    result = stamp_ocr(img)
-    if not result:
-        result = stamp_ocr(img, deepen=3)
-    return result
+    file = os.path.join(ROOT, f'{num}.png')
+    img = cv2.imread(file)
+    if img is None:
+        return False
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    os.remove(file)
+    # return stamp_ocr_test(img, gray)
+    return stamp_ocr(gray)
 
 
-def view_image(arg0, img):
-    cv2.imshow(arg0, img)
+def view_image(title, img):
+    cv2.imshow(title, img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
-def modify_pixels(img, x, y, arg3):
-    img[x, y, 0] = arg3
-    img[x, y, 1] = arg3
-    img[x, y, 2] = arg3
+def modify_pixels(img, x, y, num):
+    img[x, y, 0] = num
+    img[x, y, 1] = num
+    img[x, y, 2] = num
 
 
-def stamp_ocr(img, deepen=0):
-    img = cv2.blur(img, (2, 2))
-    img = cv2.fastNlMeansDenoisingColored(img, None, 15, 15, 7, 21)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    erode = cv2.erode(gray, ERODE)
-    for _ in range(deepen):
-        erode = cv2.erode(erode, ERODE)
-    expand = cv2.dilate(erode, EXPAND)
-    # view_image('检测前图像', expand)
+def stamp_ocr(img):
     circles = cv2.HoughCircles(
-        expand,
+        img,
         cv2.HOUGH_GRADIENT,
         1,
         10,
         param1=200,
         param2=10,
-        minRadius=5,
-        maxRadius=15)
+        minRadius=8,
+        maxRadius=16)
     try:
         for _ in circles[0]:
             return True
-        # print(len(circles[0]))
-        # for circle in circles[0]:
-        #     x = int(circle[0])
-        #     y = int(circle[1])
-        #     r = int(circle[2])
-        #     img = cv2.circle(img, (x, y), r, (0, 0, 255), 2, 8, 0)
-        # view_image('识别结果', img)
-        # return True
     except TypeError:
-        # print('识别圆形失败！')
+        return False
+
+
+def stamp_ocr_test(img, gray):
+    circles = cv2.HoughCircles(
+        gray,
+        cv2.HOUGH_GRADIENT,
+        1,
+        10,
+        param1=200,
+        param2=10,
+        minRadius=8,
+        maxRadius=16)
+    try:
+        print(len(circles[0]))
+        for circle in circles[0]:
+            x = int(circle[0])
+            y = int(circle[1])
+            r = int(circle[2])
+            img = cv2.circle(img, (x, y), r, (0, 0, 255), 2, 8, 0)
+        view_image('识别结果', img)
+        return True
+    except TypeError:
+        print('识别圆形失败！')
         return False
 
 
@@ -121,7 +124,7 @@ def save_log(log):
 
 def main():
     print('本程序自动获取当前目录 PDF 文件，并识别文件状态！')
-    print('小工具版本号：0.0.5')
+    print('小工具版本号：0.0.7 Beta')
     print('=' * 33)
     start = time.time()
     if not os.path.exists(ROOT):
