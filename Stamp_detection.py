@@ -30,6 +30,7 @@ def deal_img(num):
     mask_1 = cv2.inRange(img_hsv, LOWER_RED_1, UPPER_RED_1)
     mask_2 = cv2.inRange(img_hsv, LOWER_RED_2, UPPER_RED_2)
     mask = mask_1 + mask_2
+    # print(sum(sum(i) for i in mask))
     if sum(sum(i) for i in mask) < 200000:
         expand = cv2.dilate(mask, EXPAND)
         cv2.imwrite(file, expand)
@@ -89,7 +90,7 @@ def stamp_ocr_test(img, gray):
         minRadius=8,
         maxRadius=16)
     try:
-        print(len(circles[0]))
+        print(f'检测到 {len(circles[0])} 个圆形！')
         for circle in circles[0]:
             x = int(circle[0])
             y = int(circle[1])
@@ -123,7 +124,7 @@ def save_log(log):
 
 
 def main():
-    print('本程序自动获取当前目录 PDF 文件，并识别文件状态！')
+    print('本程序自动获取当前目录全部 PDF 文件，并识别文件状态！')
     print('小工具版本号：0.0.7 Beta')
     print('=' * 33)
     start = time.time()
