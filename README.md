@@ -3,7 +3,20 @@
 使用 Python 编写各种能够提高工作效率的小工具，代码可供学习和使用，不可用于非法用途！  
 ~~目前发布的 EXE 可执行文件支持在 Win 10 直接运行，已知在 Win 7 无法正常运行。~~
 
+*****
+
 ## 报告编辑部小工具
+
+<details>
+    <summary>安装依赖</summary>
+
+* pip install pyperclip
+* pip install pysimplegui
+
+</details>
+
+<details>
+    <summary>使用说明</summary>
 
 ### 营养成分表计算
 
@@ -34,20 +47,29 @@
 
 * 点击按钮即可复制相对应的无格式文本至剪贴板。
 
-*****
+</details>
 
 ## 印章检测小工具
 
-检测 PDF 文件中是否存在红色圆形印章。
+<details>
+    <summary>安装依赖</summary>
 
-**原理：**
+* pip install numpy
+* pip install PyMuPDF
+* pip install opencv-python
 
-1. 获取当前目录全部 PDF 文件，生成原始图像。
-2. 通过全部原始图像生成灰度图像。
-3. 灰度图像-原始图像，并替换红色和非红色像素点。
-4. 对图像进行均值滤波处理。
-5. 对图像进行非局部平均去噪处理。
-6. 将图像转化为灰度图像。
-7. 对图像进行腐蚀处理。
-8. 对图像进行膨胀处理。
-9. 通过霍夫圆变换检测印章。
+</details>
+
+<details>
+    <summary>使用说明</summary>
+
+检测扫描件（PDF 格式）中每页是否存在红色圆形印章。
+
+</details>
+
+<details>
+    <summary>实现原理</summary>
+
+即将更新
+
+</details>
