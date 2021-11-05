@@ -15,6 +15,7 @@ EXPAND = np.ones((4, 4), np.uint8)
 
 
 def pdf_to_image(filename):
+    """PDF生成图片"""
     doc = fitz.open(filename)
     for i in range(doc.page_count):
         page = doc[i]
@@ -24,29 +25,31 @@ def pdf_to_image(filename):
 
 
 def deal_img(num):
+    """提取红色部分"""
     file = os.path.join(ROOT, f'{num}.png')
     img = cv2.imdecode(np.fromfile(file, dtype=np.uint8), -1)
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mask_1 = cv2.inRange(img_hsv, LOWER_RED_1, UPPER_RED_1)
     mask_2 = cv2.inRange(img_hsv, LOWER_RED_2, UPPER_RED_2)
     mask = mask_1 + mask_2
-    # print(sum(sum(i) for i in mask))
-    if sum(sum(i) for i in mask) < 200000:
+    # print(sum(sum(i) for i in mask))  # 开发使用
+    if sum(sum(i) for i in mask) < 250000:
         expand = cv2.dilate(mask, EXPAND)
         cv2.imwrite(file, expand)
     else:
         os.remove(file)
-        # print(f'{num + 1}未生成图像！')
+        # print(f'{num + 1}未生成图像！')  # 开发使用
 
 
 def read_img(num):
+    """识别文件"""
     file = os.path.join(ROOT, f'{num}.png')
     img = cv2.imread(file)
     if img is None:
         return False
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     os.remove(file)
-    # return stamp_ocr_test(img, gray)
+    # return stamp_ocr_test(img, gray)  # 开发使用
     return stamp_ocr(gray)
 
 
@@ -63,6 +66,7 @@ def modify_pixels(img, x, y, num):
 
 
 def stamp_ocr(img):
+    """识别圆形"""
     circles = cv2.HoughCircles(
         img,
         cv2.HOUGH_GRADIENT,
@@ -125,7 +129,7 @@ def save_log(log):
 
 def main():
     print('本程序自动获取当前目录全部 PDF 文件，并识别文件状态！')
-    print('小工具版本号：0.0.7 Beta')
+    print('小工具版本号：0.0.8')
     print('=' * 33)
     start = time.time()
     if not os.path.exists(ROOT):
