@@ -19,8 +19,8 @@ def pdf_to_image(filename):
     doc = fitz.open(filename)
     for i in range(doc.page_count):
         page = doc[i]
-        img = page.getPixmap(matrix=MATRIX, alpha=False)
-        img.writePNG(os.path.join(ROOT, "%s.png" % i))
+        img = page.get_pixmap(matrix=MATRIX, alpha=False)
+        img.save(os.path.join(ROOT, "%s.png" % i))
     doc.close()
 
 

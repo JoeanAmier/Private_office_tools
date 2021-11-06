@@ -54,7 +54,7 @@
 <details>
     <summary>安装依赖</summary>
 
-* pip install numpy
+* pip install fitz
 * pip install PyMuPDF
 * pip install opencv-python
 
