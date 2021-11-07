@@ -32,7 +32,7 @@ class GUI:
                 if not os.listdir(ROOT):
                     os.rmdir(ROOT)
                 break
-            elif event == '开始检测文件':
+            elif event == '开始检测':
                 if not values[0]:
                     window.find_element('status').update('未选择文件！')
                     continue
@@ -50,9 +50,9 @@ class GUI:
         layout = [
             [sg.Text('选择文件：', font=('微软雅黑', 12)), sg.Input(font=('微软雅黑', 12)),
              sg.FileBrowse('浏览文件', font=('微软雅黑', 10), file_types=(".pdf PDF",), auto_size_button=True)],
-            [sg.Radio('仅生成异常结果', group_id='0', default=True, font=('微软雅黑', 12)),
-             sg.Radio('生成全部结果', group_id='0', key='A', font=('微软雅黑', 12))],
-            [sg.Submit('开始检测文件', font=('微软雅黑', 12)),
+            [sg.Radio('仅保存异常结果', group_id='0', default=True, font=('微软雅黑', 12)),
+             sg.Radio('保存全部结果', group_id='0', key='A', font=('微软雅黑', 12))],
+            [sg.Submit('开始检测', font=('微软雅黑', 12)),
              sg.Button('检测当前目录全部 PDF 文件', key='all', font=('微软雅黑', 12)),
              sg.Button('查看工具详细说明', key='info', font=('微软雅黑', 12))],
             [sg.StatusBar('准备就绪', key='status', font=('微软雅黑', 12), size=(10, 1))],
@@ -202,6 +202,9 @@ def save_log(log, all_=False):
         if data:
             data = pd.DataFrame(data, columns=['页码', '状态'])
             data.to_excel(f'{name}.xlsx')
+        else:
+            data = pd.DataFrame([])
+            data.to_excel(f'{name}_正常.xlsx')
 
 
 def main():

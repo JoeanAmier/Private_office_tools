@@ -57,19 +57,30 @@
 * pip install fitz
 * pip install PyMuPDF
 * pip install opencv-python
+* pip install pysimplegui
 
 </details>
 
 <details>
     <summary>使用说明</summary>
 
-检测扫描件（PDF 格式）中每页是否存在红色圆形印章。
+**检测扫描件（PDF 格式）中每页是否存在红色圆形印章。**
+
+程序检测完成后会在 PDF 文件所在文件夹生成同名 xlsx 文件，该文件包含检测结果。
+
+程序默认仅保存异常结果，当生成的 xlsx 文件名称包含“_正常”后缀时说明该 PDF 文件均为正常页；当选择保存全部结果时，文件检测结果不会在 xlsx 文件名体现，需要打开 xlsx 文件查看完整检测结果。
+
+|状态|含义|
+|----|----|
+|True|正常页，检测到印章|
+|False|异常页，未检测到印章|
+|None|未知页，红色内容过多，跳过检测|
 
 </details>
 
 <details>
     <summary>实现原理</summary>
 
-即将更新
+待更新
 
 </details>
