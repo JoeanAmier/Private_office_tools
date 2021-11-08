@@ -58,6 +58,7 @@
 * pip install PyMuPDF
 * pip install opencv-python
 * pip install pysimplegui
+* pip install openpyxl
 
 </details>
 
