@@ -99,10 +99,10 @@ def home():
         [sg.Button('脱水率及限值计算', size=(16, 2), font=('微软雅黑', 12)),
          sg.Button('固体饮料限值计算', size=(16, 2), font=('微软雅黑', 12))],
         [sg.Button('常用文本剪贴板', size=(16, 2), font=('微软雅黑', 12)),
-         sg.Button('工具详细说明\n(通过浏览器访问)', size=(16, 2), font=('微软雅黑', 12))],
+         sg.Button('查看工具详细说明', size=(16, 2), font=('微软雅黑', 12))],
     ]
     return sg.Window(
-        '报告编辑部小工具 V0.0.7',
+        '报告编辑部小工具 V0.0.8',
         layout,
         size=(
             405,
@@ -165,7 +165,8 @@ def nutrition_win():
         [sg.Button('从剪贴板导入', key='导入', font=('微软雅黑', 12)),
          sg.Button('计算', key='计算', font=('微软雅黑', 12)),
          sg.Button('清空', key='清空', font=('微软雅黑', 12))],
-        [sg.StatusBar('准备就绪', justification='center', key='status', font=('微软雅黑', 12), size=(10, 1))],
+        [sg.StatusBar('准备就绪', text_color="black", justification='center', key='status', font=('微软雅黑', 12),
+                      size=(10, 1))],
     ]
     return sg.Window(
         '营养成分表修约(基础)',
@@ -189,9 +190,10 @@ def nutrition(window):
             try:
                 del values_n['status']
                 numbers = [decimal.Decimal(i) for i in values_n.values()]
-                window_item.find_element('status').update('准备就绪')
+                # window_item.find_element('status').update('准备就绪', text_color="black")
             except decimal.InvalidOperation:
-                window_item.find_element('status').update('输入数值无效！')
+                window_item.find_element('status').update(
+                    '输入数值无效！', text_color="black")
                 continue
             limit = [decimal.Decimal(i)
                      for i in ('17', '0.5', '0.5', '0.5', '5')]
@@ -246,26 +248,31 @@ def nutrition(window):
                     decimal.Decimal('8400')).quantize(
                 decimal.Decimal('.0000'),
                 rounding=decimal.ROUND_HALF_EVEN)
+            correct = bool(abs(energy - numbers[0]) <= decimal.Decimal('20.0'))
             window_item.find_element('status').update(
                 '能量计算结果分别为：%s，%s，%.2f%%，%.0f%%' %
                 (energy, energy_round, energy_nrv, energy_nrv.quantize(
-                    decimal.Decimal('.00'), rounding=decimal.ROUND_HALF_EVEN)))
+                    decimal.Decimal('.00'), rounding=decimal.ROUND_HALF_EVEN)),
+                text_color={True: "green", False: "red"}[correct])
         elif event_n == '导入':
             data = pyperclip.paste()
             data = data.split('\r\n')
             if len(data) == 6:
-                data = data[:-1]
+                data = data[:-1]  # 可优化
             if len(data) == 5:
                 for i, j, l in zip(
                         (0, 1, 2, 3, 4), data, (-6, -4, -4, -4, -6)):
                     window_item.find_element('0' + str(i)).update(j[:l])
-                window_item.find_element('status').update('导入成功！')
+                window_item.find_element('status').update(
+                    '导入成功！', text_color="black")
             else:
-                window_item.find_element('status').update('导入失败！')
+                window_item.find_element('status').update(
+                    '导入失败，请检查复制内容！', text_color="black")
         elif event_n == '清空':
             for i in range(5):
                 window_item.find_element('0' + str(i)).update('')
-            window_item.find_element('status').update('准备就绪')
+            window_item.find_element('status').update(
+                '准备就绪', text_color="black")
 
 
 def nutrition_plus_win():
@@ -386,7 +393,8 @@ def nutrition_plus_win():
          sg.Frame(layout=rc_16, title='单位', font=('微软雅黑', 12))],
         [sg.Button('从剪贴板导入', key='导入', font=('微软雅黑', 12)),
          sg.Button('计算', key='计算', font=('微软雅黑', 12)), sg.Button('清空', key='清空', font=('微软雅黑', 12))],
-        [sg.StatusBar('准备就绪', justification='center', key='status', font=('微软雅黑', 12), size=(10, 1))],
+        [sg.StatusBar('准备就绪', text_color="black", justification='center', key='status', font=('微软雅黑', 12),
+                      size=(10, 1))],
     ]
     return sg.Window(
         '营养成分表修约(详细)',
@@ -410,9 +418,10 @@ def nutrition_plus(window):
             try:
                 del values_np['status']
                 numbers = [decimal.Decimal(i) for i in values_np.values()]
-                window_item.find_element('status').update('准备就绪')
+                # window_item.find_element('status').update('准备就绪', text_color="black")
             except decimal.InvalidOperation:
-                window_item.find_element('status').update('输入数值无效！')
+                window_item.find_element('status').update(
+                    '输入数值无效！', text_color="black")
                 continue
             limit = [
                 decimal.Decimal(i) for i in (
@@ -502,28 +511,33 @@ def nutrition_plus(window):
                     decimal.Decimal('8400')).quantize(
                 decimal.Decimal('.0000'),
                 rounding=decimal.ROUND_HALF_EVEN)
+            correct = bool(abs(energy - numbers[0]) <= decimal.Decimal('20.0'))
             window_item.find_element('status').update(
                 '能量计算结果分别为：%s，%s，%.2f%%，%.0f%%' %
                 (energy, energy_round, energy_nrv, energy_nrv.quantize(
-                    decimal.Decimal('.00'), rounding=decimal.ROUND_HALF_EVEN)))
+                    decimal.Decimal('.00'), rounding=decimal.ROUND_HALF_EVEN)),
+                text_color={True: "green", False: "red"}[correct])
         elif event_np == '导入':
             data = pyperclip.paste()
             data = data.split('\r\n')
             if len(data) == 6:
-                data = data[:-1]
+                data = data[:-1]  # 可优化
             if len(data) == 5:
                 for i, j, l in zip(
                         (0, 1, 2, 3, 4), data, (-6, -4, -4, -4, -6)):
                     window_item.find_element('00' + str(i)).update(j[:l])
-                window_item.find_element('status').update('导入成功！')
+                window_item.find_element('status').update(
+                    '导入成功！', text_color="black")
             else:
-                window_item.find_element('status').update('导入失败！')
+                window_item.find_element('status').update(
+                    '导入失败，请检查复制内容！', text_color="black")
         elif event_np == '清空':
             for i in range(5):
                 window_item.find_element('0' + str(i).zfill(2)).update('')
             for i in range(5, 16):
                 window_item.find_element('0' + str(i).zfill(2)).update('0')
-            window_item.find_element('status').update('准备就绪')
+            window_item.find_element('status').update(
+                '准备就绪', text_color="black")
 
 
 def dehydration_win():
@@ -916,7 +930,7 @@ def main():
             window = clipboard(window)
         elif event == '固体饮料限值计算':
             window = solid_drink(window)
-        elif event == '工具详细说明\n(通过浏览器访问)':
+        elif event == '查看工具详细说明':
             webbrowser.open(
                 'https://github.com/JoeanAmiee/Private_office_tools')
 
