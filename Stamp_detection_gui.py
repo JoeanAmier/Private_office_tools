@@ -26,17 +26,21 @@ class GUI:
             os.mkdir(ROOT)
         else:
             window.find_element('status').update('程序异常，请删除“cache”文件夹后重新启动程序！')
+        file = None
         while True:
             event, values = window.read()
             if event is None:
                 if not os.listdir(ROOT):
                     os.rmdir(ROOT)
                 break
+            elif event == 'choice':
+                file = self.choice_file()
+                window.find_element('selected').update(';'.join(file))
             elif event == '开始检测':
-                if not values[0]:
+                if not file:
                     window.find_element('status').update('未选择文件！')
                     continue
-                self.deal(window, values['A'], values[0])
+                self.deal(window, values['A'], file)
                 window.find_element('status').update('当前选择文件检测完成！')
             elif event == 'all':
                 self.deal(window, values['A'])
@@ -48,8 +52,8 @@ class GUI:
     @staticmethod
     def home():
         layout = [
-            [sg.Text('选择文件：', font=('微软雅黑', 12)), sg.Input(font=('微软雅黑', 12)),
-             sg.FileBrowse('浏览文件', font=('微软雅黑', 10), file_types=(".pdf PDF",), auto_size_button=True)],
+            [sg.Text('选择文件：', font=('微软雅黑', 12)), sg.Input(key='selected', font=('微软雅黑', 12)),
+             sg.Button('浏览文件', key='choice', font=('微软雅黑', 10))],
             [sg.Radio('仅保存异常结果', group_id='0', default=True, font=('微软雅黑', 12)),
              sg.Radio('保存全部结果', group_id='0', key='A', font=('微软雅黑', 12))],
             [sg.Submit('开始检测', font=('微软雅黑', 12)),
@@ -64,6 +68,11 @@ class GUI:
             element_justification='center',
             finalize=True)
 
+    def choice_file(self):
+        return sg.popup_get_file(
+            '', file_types=(
+                ('PDF', '*.pdf'),), no_window=True, multiple_files=True, )
+
     def deal(self, window, all_, file=None):
         window.Hide()
         wait = self.deal_gui()
@@ -71,7 +80,7 @@ class GUI:
             pdf = os.listdir()
             log = [check_pdf(i) for i in pdf if i.endswith('.pdf')]
         else:
-            log = [check_pdf(file)]
+            log = [check_pdf(i) for i in file]
         save_log(log, all_)
         wait.close()
         window.UnHide()
