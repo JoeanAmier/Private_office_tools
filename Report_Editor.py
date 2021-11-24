@@ -109,7 +109,8 @@ def home():
             210),
         text_justification='center',
         element_justification='center',
-        finalize=True)
+        icon='./images/RE.ico',
+        finalize=True, )
 
 
 def nutrition_win():
@@ -173,6 +174,7 @@ def nutrition_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
+        icon='./images/RE.ico',
         finalize=True,
         return_keyboard_events=True)
 
@@ -400,6 +402,7 @@ def nutrition_plus_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
+        icon='./images/RE.ico',
         finalize=True,
         return_keyboard_events=True)
 
@@ -612,6 +615,7 @@ def dehydration_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
+        icon='./images/RE.ico',
         finalize=True,
         return_keyboard_events=True)
 
@@ -757,6 +761,7 @@ def clipboard_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
+        icon='./images/RE.ico',
         finalize=True)
 
 
@@ -835,6 +840,7 @@ def solid_drink_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
+        icon='./images/RE.ico',
         finalize=True,
         return_keyboard_events=True)
 
