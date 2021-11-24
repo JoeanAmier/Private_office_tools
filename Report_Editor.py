@@ -180,8 +180,8 @@ def nutrition_win():
 
 
 def nutrition(window):
-    window.Hide()
     window_item = nutrition_win()
+    window.Hide()
     while True:
         event_n, values_n = window_item.read(timeout=100)
         if event_n == '-WINDOW CLOSE ATTEMPTED-':
@@ -408,8 +408,8 @@ def nutrition_plus_win():
 
 
 def nutrition_plus(window):
-    window.Hide()
     window_item = nutrition_plus_win()
+    window.Hide()
     while True:
         event_np, values_np = window_item.read(timeout=100)
         if event_np == '-WINDOW CLOSE ATTEMPTED-':
@@ -621,8 +621,8 @@ def dehydration_win():
 
 
 def dehydration(window):
-    window.Hide()
     window_item = dehydration_win()
+    window.Hide()
     remark = None
     while True:
         event_d, values_d = window_item.read(timeout=100)
@@ -766,8 +766,8 @@ def clipboard_win():
 
 
 def clipboard(window):
-    window.Hide()
     window_item = clipboard_win()
+    window.Hide()
     while True:
         event_d, values_d = window_item.read(timeout=100)
         if event_d == '-WINDOW CLOSE ATTEMPTED-':
@@ -846,8 +846,8 @@ def solid_drink_win():
 
 
 def solid_drink(window):
-    window.Hide()
     window_item = solid_drink_win()
+    window.Hide()
     remark = None
     while True:
         event_s, values_s = window_item.read(timeout=100)
