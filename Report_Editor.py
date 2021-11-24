@@ -102,7 +102,7 @@ def home():
          sg.Button('查看工具详细说明', size=(16, 2), font=('微软雅黑', 12))],
     ]
     return sg.Window(
-        '报告编辑部小工具 V0.0.8',
+        '报告编辑部小工具 V0.1.0',
         layout,
         size=(
             405,
@@ -181,7 +181,7 @@ def nutrition(window):
     window.Hide()
     window_item = nutrition_win()
     while True:
-        event_n, values_n = window_item.read()
+        event_n, values_n = window_item.read(timeout=100)
         if event_n == '-WINDOW CLOSE ATTEMPTED-':
             window_item.close()
             window.UnHide()
@@ -190,7 +190,6 @@ def nutrition(window):
             try:
                 del values_n['status']
                 numbers = [decimal.Decimal(i) for i in values_n.values()]
-                # window_item.find_element('status').update('准备就绪', text_color="black")
             except decimal.InvalidOperation:
                 window_item.find_element('status').update(
                     '输入数值无效！', text_color="black")
@@ -258,7 +257,7 @@ def nutrition(window):
             data = pyperclip.paste()
             data = data.split('\r\n')
             if len(data) == 6:
-                data = data[:-1]  # 可优化
+                data = data[:-1]
             if len(data) == 5:
                 for i, j, l in zip(
                         (0, 1, 2, 3, 4), data, (-6, -4, -4, -4, -6)):
@@ -409,7 +408,7 @@ def nutrition_plus(window):
     window.Hide()
     window_item = nutrition_plus_win()
     while True:
-        event_np, values_np = window_item.read()
+        event_np, values_np = window_item.read(timeout=100)
         if event_np == '-WINDOW CLOSE ATTEMPTED-':
             window_item.close()
             window.UnHide()
@@ -418,7 +417,6 @@ def nutrition_plus(window):
             try:
                 del values_np['status']
                 numbers = [decimal.Decimal(i) for i in values_np.values()]
-                # window_item.find_element('status').update('准备就绪', text_color="black")
             except decimal.InvalidOperation:
                 window_item.find_element('status').update(
                     '输入数值无效！', text_color="black")
@@ -521,7 +519,7 @@ def nutrition_plus(window):
             data = pyperclip.paste()
             data = data.split('\r\n')
             if len(data) == 6:
-                data = data[:-1]  # 可优化
+                data = data[:-1]
             if len(data) == 5:
                 for i, j, l in zip(
                         (0, 1, 2, 3, 4), data, (-6, -4, -4, -4, -6)):
@@ -623,7 +621,7 @@ def dehydration(window):
     window_item = dehydration_win()
     remark = None
     while True:
-        event_d, values_d = window_item.read()
+        event_d, values_d = window_item.read(timeout=100)
         if event_d == '-WINDOW CLOSE ATTEMPTED-':
             window_item.close()
             window.UnHide()
@@ -766,7 +764,7 @@ def clipboard(window):
     window.Hide()
     window_item = clipboard_win()
     while True:
-        event_d, values_d = window_item.read()
+        event_d, values_d = window_item.read(timeout=100)
         if event_d == '-WINDOW CLOSE ATTEMPTED-':
             window_item.close()
             window.UnHide()
@@ -846,7 +844,7 @@ def solid_drink(window):
     window_item = solid_drink_win()
     remark = None
     while True:
-        event_s, values_s = window_item.read()
+        event_s, values_s = window_item.read(timeout=100)
         if event_s == '-WINDOW CLOSE ATTEMPTED-':
             window_item.close()
             window.UnHide()
@@ -917,7 +915,7 @@ def main():
     sg.theme('GreenMono')
     window = home()
     while True:
-        event, values = window.read()
+        event, values = window.read(timeout=100)
         if event is None:
             break
         elif event == '营养成分表(基础)':
