@@ -106,7 +106,7 @@ def home():
         layout,
         size=(
             405,
-            210),
+            195),
         text_justification='center',
         element_justification='center',
         icon='./images/RE.ico',
@@ -918,7 +918,18 @@ def solid_drink(window):
 
 
 def main():
-    sg.theme('GreenMono')
+    theme = {'BACKGROUND': '#fef6e4',
+             'TEXT': '#172c66',
+             'INPUT': '#f3d2c1',
+             'TEXT_INPUT': '#001858',
+             'SCROLL': '#f582ae',
+             'BUTTON': ('#232946', '#eebbc3'),
+             'PROGRESS': ('#8bd3dd', '#f582ae'),
+             'BORDER': 0,
+             'SLIDER_DEPTH': 0,
+             'PROGRESS_DEPTH': 0}
+    sg.theme_add_new('RE_Theme', theme)
+    sg.theme('RE_Theme')
     window = home()
     while True:
         event, values = window.read(timeout=100)
