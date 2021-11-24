@@ -1,14 +1,14 @@
 import PySimpleGUI as sg
 
 # Add your new theme colors and settings
-my_new_theme = {'BACKGROUND': '#709053',
-                'TEXT': '#fff4c9',
-                'INPUT': '#c7e78b',
-                'TEXT_INPUT': '#000000',
-                'SCROLL': '#c7e78b',
-                'BUTTON': ('white', '#709053'),
-                'PROGRESS': ('#01826B', '#D0D0D0'),
-                'BORDER': 1,
+my_new_theme = {'BACKGROUND': '#fef6e4',
+                'TEXT': '#172c66',
+                'INPUT': '#f3d2c1',
+                'TEXT_INPUT': '#001858',
+                'SCROLL': '#f582ae',
+                'BUTTON': ('#232946', '#eebbc3'),
+                'PROGRESS': ('#8bd3dd', '#f582ae'),
+                'BORDER': 0,
                 'SLIDER_DEPTH': 0,
                 'PROGRESS_DEPTH': 0}
 
