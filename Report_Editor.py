@@ -75,6 +75,58 @@ DEHYDRATION_ITEMS = (
     '总汞(以Hg计)',
     '铬(以Cr计)')
 
+VERSION = 'V0.1.0'
+ICO = """data:image/png;base64,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
+ElFTkSuQmCC"""
+
 
 def valid_numbers(text, min_=False):
     if text.endswith('.0'):
@@ -102,14 +154,14 @@ def home():
          sg.Button('查看工具详细说明', size=(16, 2), font=('微软雅黑', 12))],
     ]
     return sg.Window(
-        '报告编辑部小工具 V0.1.0',
+        f'报告编辑部小工具 {VERSION}',
         layout,
         size=(
             405,
             195),
         text_justification='center',
         element_justification='center',
-        icon='./images/RE.ico',
+        icon=ICO,
         finalize=True, )
 
 
@@ -174,7 +226,7 @@ def nutrition_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
-        icon='./images/RE.ico',
+        icon=ICO,
         finalize=True,
         return_keyboard_events=True)
 
@@ -402,7 +454,7 @@ def nutrition_plus_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
-        icon='./images/RE.ico',
+        icon=ICO,
         finalize=True,
         return_keyboard_events=True)
 
@@ -615,7 +667,7 @@ def dehydration_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
-        icon='./images/RE.ico',
+        icon=ICO,
         finalize=True,
         return_keyboard_events=True)
 
@@ -761,7 +813,7 @@ def clipboard_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
-        icon='./images/RE.ico',
+        icon=ICO,
         finalize=True)
 
 
@@ -840,7 +892,7 @@ def solid_drink_win():
         layout,
         enable_close_attempted_event=True,
         element_justification='center',
-        icon='./images/RE.ico',
+        icon=ICO,
         finalize=True,
         return_keyboard_events=True)
 
