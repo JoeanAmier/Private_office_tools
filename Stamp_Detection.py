@@ -1,4 +1,5 @@
 import os
+import threading
 import webbrowser
 
 import PySimpleGUI as sg
@@ -212,39 +213,71 @@ class GUI:
         if not os.path.exists(ROOT):
             os.mkdir(ROOT)
         else:
-            window.find_element('status').update('程序异常，请尝试删除“cache”文件夹后重新启动程序！', text_color="red")
-        file = None
+            window.find_element('status').update(
+                '程序异常，请尝试删除“cache”文件夹后重新启动程序！', text_color="red")
+        file = set()
+        task = None
         while True:
-            event, values = window.read()
+            event, values = window.read(timeout=100)
             if event is None:
                 if not os.listdir(ROOT):
                     os.rmdir(ROOT)
                 break
             elif event == 'choice':
-                file = self.choice_file()
-                window.find_element('selected').update(';'.join(file))
+                cache = self.choice_file()
+                if cache:
+                    [file.add(i) for i in cache]
+                    window.find_element('screen').update('\n'.join(file))
+            elif event == 'reset':
+                file = set()
+                window.find_element('screen').update('当前未选择任何待检测文件！')
             elif event == '开始检测':
                 if not file:
                     window.find_element('status').update('未选择文件！')
                     continue
-                self.deal(window, values['A'], file)
-                window.find_element('status').update('当前选择文件检测完成！')
+                task = threading.Thread(
+                    target=self.deal, args=(
+                        window, values['A'], file))
+                task.start()
             elif event == 'all':
-                self.deal(window, values['A'])
-                window.find_element('status').update('当前目录全部 PDF 文件检测完成！')
+                task = threading.Thread(
+                    target=self.deal, args=(
+                        window, values['A']))
+                task.start()
             elif event == 'info':
                 webbrowser.open(
                     'https://github.com/JoeanAmiee/Private_office_tools')
+            if task:
+                window['choice'].update(disabled=True)
+                window['reset'].update(disabled=True)
+                window['开始检测'].update(disabled=True)
+                window['all'].update(disabled=True)
+                sg.popup_animated(
+                    sg.DEFAULT_BASE64_LOADING_GIF,
+                    background_color='white',
+                    transparent_color='white',
+                    time_between_frames=100)
+                task.join(timeout=0)
+                if not task.is_alive():
+                    sg.popup_animated(None)
+                    task = None
+                    window['choice'].update(disabled=False)
+                    window['reset'].update(disabled=False)
+                    window['开始检测'].update(disabled=False)
+                    window['all'].update(disabled=False)
+        window.close()
 
     @staticmethod
     def home():
         layout = [
-            [sg.Text('选择文件：', font=('微软雅黑', 12)), sg.Input(key='selected', font=('微软雅黑', 12)),
-             sg.Button('浏览文件', key='choice', font=('微软雅黑', 10))],
+            [sg.Multiline('当前未选择任何待检测文件！', autoscroll=True, font=('微软雅黑', 10), size=(68, 8), disabled=True,
+                          key='screen')],
             [sg.Radio('仅保存异常结果', group_id='0', default=True, font=('微软雅黑', 12)),
              sg.Radio('保存全部结果', group_id='0', key='A', font=('微软雅黑', 12))],
-            [sg.Submit('开始检测', font=('微软雅黑', 12)),
-             sg.Button('检测当前目录全部 PDF 文件', key='all', font=('微软雅黑', 12)),
+            [sg.Button('选择文件', key='choice', font=('微软雅黑', 12), tooltip='按住 Ctrl 可选择多个 PDF 文件'),
+             sg.Button('清空文件', key='reset', font=('微软雅黑', 12), tooltip='清空待检测文件列表，不会删除文件'),
+             sg.Submit('开始检测', font=('微软雅黑', 12), tooltip='开始检测并识别已选择的 PDF 文件'),
+             sg.Button('扫描当前目录', key='all', font=('微软雅黑', 12), tooltip='扫描并检测程序所在文件夹内全部 PDF 文件'),
              sg.Button('查看工具详细说明', key='info', font=('微软雅黑', 12))],
             [sg.StatusBar('准备就绪', key='status', text_color="black", font=('微软雅黑', 12), size=(10, 1))],
         ]
@@ -259,32 +292,27 @@ class GUI:
     @staticmethod
     def choice_file():
         return sg.popup_get_file(
-            '', file_types=(
-                ('PDF', '*.pdf'),), icon=ICO, no_window=True, multiple_files=True, )
+            '',
+            file_types=(
+                ('PDF',
+                 '*.pdf'),
+            ),
+            icon=ICO,
+            no_window=True,
+            multiple_files=True,
+        )
 
-    def deal(self, window, all_, file=None):
-        window.Hide()
-        wait = self.deal_gui()
+    @staticmethod
+    def deal(window, all_, file=None):
         if not file:
             pdf = os.listdir()
             log = [check_pdf(i) for i in pdf if i.endswith('.pdf')]
+            save_log(log, all_)
+            window.find_element('status').update('当前目录全部 PDF 文件检测完成！')
         else:
             log = [check_pdf(i) for i in file]
-        save_log(log, all_)
-        wait.close()
-        window.UnHide()
-
-    @staticmethod
-    def deal_gui():
-        layout = [
-            [sg.Text('正在检测文件状态，请耐心等待……', font=('微软雅黑', 12))],
-        ]
-        return sg.Window(
-            '处理中',
-            layout,
-            text_justification='center',
-            element_justification='center',
-            finalize=True)
+            save_log(log, all_)
+            window.find_element('status').update('当前选择文件检测完成！')
 
 
 def pdf_to_image(filename):
@@ -306,7 +334,7 @@ def deal_img(num):
     mask_2 = cv2.inRange(img_hsv, LOWER_RED_2, UPPER_RED_2)
     mask = mask_1 + mask_2
     # print(sum(sum(i) for i in mask))  # 调试时使用
-    if sum(sum(i) for i in mask) < 250000:
+    if sum(sum(i) for i in mask) < 150000:
         expand = cv2.dilate(mask, EXPAND)
         cv2.imwrite(file, expand)
     else:
@@ -383,6 +411,7 @@ def check_pdf(filename):
 
 
 def save_log(log, all_=False):
+    """保存结果数据"""
     for i, j in log:
         name, _ = os.path.splitext(i)
         data = [
