@@ -991,17 +991,17 @@ class GUI:
           task = None
           while True:
                 event, values = window.read(timeout=100)
-            if event is None:
-                if not os.listdir(ROOT):
-                    os.rmdir(ROOT)
-                break
-            elif event == 'choice':
-                  window['choice'].update(disabled=True)
-                cache = self.choice_file()
-                if cache:
-                    [file.add(i) for i in cache]
-                    window.find_element('screen').update('\n'.join(file))
-                  window['choice'].update(disabled=False)
+                if event is None:
+                      if not os.listdir(ROOT):
+                            os.rmdir(ROOT)
+                      break
+                elif event == 'choice':
+                      window['choice'].update(disabled=True)
+                      cache = self.choice_file()
+                      if cache:
+                            [file.add(i) for i in cache]
+                            window.find_element('screen').update('\n'.join(file))
+                      window['choice'].update(disabled=False)
             elif event == 'reset':
                 file = set()
                 window.find_element('screen').update('当前未选择任何待检测文件！')
