@@ -1098,7 +1098,7 @@ class GUI:
         """PDF生成图片"""
         doc = fitz.open(filename)
         for i in range(doc.page_count):
-              img = doc[i].get_pixmap(matrix=MATRIX, alpha=False)
+            img = doc[i].get_pixmap(matrix=MATRIX, alpha=False)
             img.save(os.path.join(ROOT, "%s.png" % i))
         doc.close()
 
