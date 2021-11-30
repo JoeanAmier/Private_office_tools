@@ -1104,20 +1104,20 @@ class GUI:
 
     @staticmethod
     def deal_img(num):
-          """提取红色部分"""
-          file = os.path.join(ROOT, f'{num}.png')
-          img = cv2.imdecode(np.fromfile(file, dtype=np.uint8), -1)
-          img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-          mask_1 = cv2.inRange(img, LOWER_RED_1, UPPER_RED_1)
-          mask_2 = cv2.inRange(img, LOWER_RED_2, UPPER_RED_2)
-          mask = mask_1 + mask_2
-          # print(sum(sum(i) for i in mask))  # 调试时使用
-          if sum(sum(i) for i in mask) < 150000:
-                expand = cv2.dilate(mask, EXPAND)
-                cv2.imwrite(file, expand)
-          else:
-                os.remove(file)
-                # print(f'{num + 1}未生成图像！')  # 调试时使用
+        """提取红色部分"""
+        file = os.path.join(ROOT, f'{num}.png')
+        img = cv2.imdecode(np.fromfile(file, dtype=np.uint8), -1)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        mask_1 = cv2.inRange(img, LOWER_RED_1, UPPER_RED_1)
+        mask_2 = cv2.inRange(img, LOWER_RED_2, UPPER_RED_2)
+        mask = mask_1 + mask_2
+        # print(sum(sum(i) for i in mask))  # 调试时使用
+        if sum(sum(i) for i in mask) < 150000:
+            expand = cv2.dilate(mask, EXPAND)
+            cv2.imwrite(file, expand)
+        else:
+            os.remove(file)
+            # print(f'{num + 1}未生成图像！')  # 调试时使用
 
     def read_img(self, num):
         """识别文件"""
@@ -1142,17 +1142,17 @@ class GUI:
             minRadius=8,
             maxRadius=16)
         try:
-              _ = circles[0][0]
-              return True
+            _ = circles[0][0]
+            return True
         except TypeError:
             return False
 
     def check_pdf(self, filename):
-          self.pdf_to_image(filename)
-          file = range(len(os.listdir(ROOT)))
-          [self.deal_img(i) for i in file]
-          result = [self.read_img(i) for i in file]
-          return filename, result
+        self.pdf_to_image(filename)
+        file = range(len(os.listdir(ROOT)))
+        [self.deal_img(i) for i in file]
+        result = [self.read_img(i) for i in file]
+        return filename, result
 
     @staticmethod
     def save_log(log, all_=False):
