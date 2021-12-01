@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import threading
 import webbrowser
@@ -1148,7 +1149,10 @@ class GUI:
             return False
 
     def check_pdf(self, filename):
-        self.pdf_to_image(filename)
+        task = multiprocessing.Process(
+            target=self.pdf_to_image, args=(filename,))
+        task.start()
+        task.join()
         file = range(len(os.listdir(ROOT)))
         [self.deal_img(i) for i in file]
         result = [self.read_img(i) for i in file]
