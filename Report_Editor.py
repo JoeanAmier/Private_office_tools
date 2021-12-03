@@ -1,8 +1,8 @@
 import decimal
 import webbrowser
+from multiprocessing import Process
 
 import PySimpleGUI as sg
-import pyperclip
 
 TEXT = {
     '00': '△：n：同一批次产品应采集的样品件数，c：最大可允许超出m值的样品件数，m：微生物指标可接受水平的限量值，M：微生物指标的最高安全限值。',
@@ -75,7 +75,7 @@ DEHYDRATION_ITEMS = (
     '总汞(以Hg计)',
     '铬(以Cr计)')
 
-VERSION = 'V0.1.0'
+VERSION = 'V0.1.1'
 
 ICO = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\xc8\x00\x00\x00\xc8\x08\x06\x00\x00\x00\xadX\xae\x9e\x00\x00' \
       b'\x00\x01sRGB\x00\xae\xce\x1c\xe9\x00\x00\x10"IDATx^\xed\x9d}\x90\x1bu\x19\xc7\x9fgs\xef}\xbdrPy)/\xe5\xad\xe2' \
@@ -309,15 +309,13 @@ def nutrition_win():
         return_keyboard_events=True)
 
 
-def nutrition(window):
+def nutrition():
+    set_theme()
     window_item = nutrition_win()
-    window.Hide()
     while True:
         event_n, values_n = window_item.read(timeout=100)
         if event_n == '-WINDOW CLOSE ATTEMPTED-':
-            window_item.close()
-            window.UnHide()
-            return window
+            break
         elif event_n in ['计算', '\r']:
             try:
                 del values_n['status']
@@ -386,8 +384,8 @@ def nutrition(window):
                     decimal.Decimal('.00'), rounding=decimal.ROUND_HALF_EVEN)),
                 text_color={True: "green", False: "red"}[correct])
         elif event_n == '导入':
-            data = pyperclip.paste()
-            data = data.split('\r\n')
+            data = sg.clipboard_get()
+            data = data.split('\r\n') if '\r' in data else data.split('\n')
             if len(data) == 6:
                 data = data[:-1]
             if len(data) == 5:
@@ -404,6 +402,7 @@ def nutrition(window):
                 window_item.find_element('0' + str(i)).update('')
             window_item.find_element('status').update(
                 '准备就绪', text_color="black")
+    window_item.close()
 
 
 def nutrition_plus_win():
@@ -537,15 +536,13 @@ def nutrition_plus_win():
         return_keyboard_events=True)
 
 
-def nutrition_plus(window):
+def nutrition_plus():
+    set_theme()
     window_item = nutrition_plus_win()
-    window.Hide()
     while True:
         event_np, values_np = window_item.read(timeout=100)
         if event_np == '-WINDOW CLOSE ATTEMPTED-':
-            window_item.close()
-            window.UnHide()
-            return window
+            break
         elif event_np in ['计算', '\r']:
             try:
                 del values_np['status']
@@ -649,8 +646,8 @@ def nutrition_plus(window):
                     decimal.Decimal('.00'), rounding=decimal.ROUND_HALF_EVEN)),
                 text_color={True: "green", False: "red"}[correct])
         elif event_np == '导入':
-            data = pyperclip.paste()
-            data = data.split('\r\n')
+            data = sg.clipboard_get()
+            data = data.split('\r\n') if '\r' in data else data.split('\n')
             if len(data) == 6:
                 data = data[:-1]
             if len(data) == 5:
@@ -669,6 +666,7 @@ def nutrition_plus(window):
                 window_item.find_element('0' + str(i).zfill(2)).update('0')
             window_item.find_element('status').update(
                 '准备就绪', text_color="black")
+    window_item.close()
 
 
 def dehydration_win():
@@ -750,16 +748,14 @@ def dehydration_win():
         return_keyboard_events=True)
 
 
-def dehydration(window):
+def dehydration():
+    set_theme()
     window_item = dehydration_win()
-    window.Hide()
     remark = None
     while True:
         event_d, values_d = window_item.read(timeout=100)
         if event_d == '-WINDOW CLOSE ATTEMPTED-':
-            window_item.close()
-            window.UnHide()
-            return window
+            break
         elif event_d in ['计算', '\r']:
             try:
                 del values_d['status']
@@ -836,7 +832,7 @@ def dehydration(window):
                        '以此为依据，折算该样品%s。' % \
                        (fresh, real, (result * 100).quantize(decimal.Decimal('.000'), rounding=decimal.ROUND_HALF_EVEN),
                         items)
-            pyperclip.copy(text)
+            sg.clipboard_set(text)
             window_item.find_element('status').update(
                 '脱水率：%.1f%%，复制备注成功！' %
                 (result *
@@ -851,6 +847,7 @@ def dehydration(window):
                     LIMIT[event_d][i])
             window_item.find_element('status').update('准备就绪')
             remark = None
+    window_item.close()
 
 
 def clipboard_win():
@@ -895,17 +892,16 @@ def clipboard_win():
         finalize=True)
 
 
-def clipboard(window):
+def clipboard():
+    set_theme()
     window_item = clipboard_win()
-    window.Hide()
     while True:
         event_d, values_d = window_item.read(timeout=100)
         if event_d == '-WINDOW CLOSE ATTEMPTED-':
-            window_item.close()
-            window.UnHide()
-            return window
+            break
         elif event_d in [str(i).zfill(2) for i in range(21)]:
-            pyperclip.copy(TEXT[event_d])
+            sg.clipboard_set(TEXT[event_d])
+    window_item.close()
 
 
 def solid_drink_win():
@@ -975,16 +971,14 @@ def solid_drink_win():
         return_keyboard_events=True)
 
 
-def solid_drink(window):
+def solid_drink():
+    set_theme()
     window_item = solid_drink_win()
-    window.Hide()
     remark = None
     while True:
         event_s, values_s = window_item.read(timeout=100)
         if event_s == '-WINDOW CLOSE ATTEMPTED-':
-            window_item.close()
-            window.UnHide()
-            return window
+            break
         elif event_s in ['计算', '\r']:
             try:
                 del values_s['status']
@@ -1026,7 +1020,7 @@ def solid_drink(window):
             length_m = valid_numbers(str(multiple), min_=True)
             text = '样品冲调比例：将每包（%sg）XXX固体饮料加%s毫升清水冲调。项目“%s”按稀释倍数折算。' % (
                 numbers[0], numbers[1], '、'.join(remark))
-            pyperclip.copy(text)
+            sg.clipboard_set(text)
             window_item.find_element('status').update(
                 '倍数：%s，复制备注成功！' %
                 multiple.quantize(
@@ -1045,9 +1039,10 @@ def solid_drink(window):
                     SOLID[event_s][j])
             window_item.find_element('status').update('准备就绪')
             remark = None
+    window_item.close()
 
 
-def main():
+def set_theme():
     theme = {'BACKGROUND': '#fef6e4',
              'TEXT': '#172c66',
              'INPUT': '#f3d2c1',
@@ -1060,21 +1055,25 @@ def main():
              'PROGRESS_DEPTH': 0}
     sg.theme_add_new('RE_Theme', theme)
     sg.theme('RE_Theme')
+
+
+def main():
+    set_theme()
     window = home()
     while True:
         event, values = window.read(timeout=100)
         if event is None:
             break
         elif event == '营养成分表(基础)':
-            window = nutrition(window)
+            Process(target=nutrition, daemon=True).start()
         elif event == '营养成分表(详细)':
-            window = nutrition_plus(window)
+            Process(target=nutrition_plus, daemon=True).start()
         elif event == '脱水率及限值计算':
-            window = dehydration(window)
+            Process(target=dehydration, daemon=True).start()
         elif event == '常用文本剪贴板':
-            window = clipboard(window)
+            Process(target=clipboard, daemon=True).start()
         elif event == '固体饮料限值计算':
-            window = solid_drink(window)
+            Process(target=solid_drink, daemon=True).start()
         elif event == '查看工具详细说明':
             webbrowser.open(
                 'https://github.com/JoeanAmiee/Private_office_tools')
