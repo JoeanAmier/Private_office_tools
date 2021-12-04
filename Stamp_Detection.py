@@ -285,7 +285,8 @@ class GUI:
 
     def home(self):
         layout = [
-            [sg.Multiline('当前未选择任何待检测文件！', autoscroll=True, font=('微软雅黑', 10), size=(68, 8), disabled=True,
+            [sg.Multiline('当前未选择任何待检测文件！\n\n- - - - 将鼠标悬停在按钮上可查看提示 - - - -',
+                          autoscroll=True, font=('微软雅黑', 10), size=(68, 8), disabled=True,
                           key='screen')],
             [sg.Radio('仅保存异常结果', group_id='0', default=True, font=('微软雅黑', 12),
                       tooltip='若 PDF 文件均为正常页，对应的 xlsx 文件名称会以 “ _正常 ” 结尾'),
