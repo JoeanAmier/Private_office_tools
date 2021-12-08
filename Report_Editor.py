@@ -1,6 +1,7 @@
 import decimal
 import webbrowser
 from multiprocessing import Process
+from multiprocessing import freeze_support
 
 import PySimpleGUI as sg
 
@@ -1081,4 +1082,5 @@ def main():
 
 
 if __name__ == '__main__':
+    freeze_support()
     main()
