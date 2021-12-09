@@ -1,7 +1,9 @@
 import os
+import pickle
 import threading
 import webbrowser
 from multiprocessing import Process
+from multiprocessing import freeze_support
 
 import PySimpleGUI as sg
 import cv2
@@ -285,7 +287,7 @@ class GUI:
 
     def home(self):
         layout = [
-            [sg.Multiline('当前未选择任何待检测文件！\n\n- - - - 将鼠标悬停在按钮上可查看提示 - - - -',
+            [sg.Multiline('当前未选择任何待检测文件！\n\nTips: 将鼠标悬停在按钮上可查看相应提示！',
                           autoscroll=True, font=('微软雅黑', 10), size=(68, 8), disabled=True,
                           key='screen')],
             [sg.Radio('仅保存异常结果', group_id='0', default=True, font=('微软雅黑', 12),
@@ -322,7 +324,7 @@ class GUI:
 
     def deal(self, window, all_, save, file=None):
         if not file:
-            log = [self.check_pdf(i, save)
+            log = [self.check_pdf(os.path.join(os.getcwd(), i), save)
                    for i in os.listdir() if i.endswith('.pdf')]
             self.save_log(log, all_)
             window.find_element('status').update('当前目录全部 PDF 文件检测完成！')
@@ -330,6 +332,18 @@ class GUI:
             log = [self.check_pdf(i, save) for i in file]
             self.save_log(log, all_)
             window.find_element('status').update('已选文件检测完成！')
+        self.finished(log)
+
+    @staticmethod
+    def finished(data):
+        if not os.path.exists('Inspection_records.pkl'):
+            with open('Inspection_records.pkl', 'wb') as f:
+                pickle.dump(set(), f)
+        with open('Inspection_records.pkl', 'rb') as f:
+            log = pickle.load(f)
+        with open('Inspection_records.pkl', 'wb') as f:
+            log.update([i for i, _ in data])
+            pickle.dump(log, f)
 
     @staticmethod
     def pdf_to_image(filename, save):
@@ -441,4 +455,5 @@ def main():
 
 
 if __name__ == '__main__':
+    freeze_support()
     main()
