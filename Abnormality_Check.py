@@ -1,5 +1,6 @@
 import os
 import webbrowser
+import time
 from multiprocessing import Process
 from multiprocessing import freeze_support
 
@@ -17,6 +18,10 @@ class GUI:
         self.log = None
         self.set_theme()
         self.main = self.home()
+        self.task = None
+        self.file = None
+        self.page = None
+        self.pdf = None
 
     @staticmethod
     def set_theme():
@@ -30,8 +35,8 @@ class GUI:
                  'BORDER': 0,
                  'SLIDER_DEPTH': 0,
                  'PROGRESS_DEPTH': 0}
-        sg.theme_add_new('RE_Theme', theme)
-        sg.theme('RE_Theme')
+        sg.theme_add_new('AC_Theme', theme)
+        sg.theme('AC_Theme')
 
     def run(self):
         if not os.path.exists(ROOT):
@@ -44,10 +49,27 @@ class GUI:
             if event is None:
                 break
             elif event == 'choice':
-                self.choice_deal(values['low'])
+                tip = self.choice_deal()
+                if tip:
+                    self.main.find_element('status').update(tip)
+                    continue
+                self.task = Process(
+                    target=self.pdf_to_image, args=(self.pdf, self.page, values['low']),
+                    daemon=True)
+                self.task.start()
+                self.main.find_element('status').update('处理中...')
             elif event == 'info':
                 webbrowser.open(
                     'https://github.com/JoeanAmiee/Private_office_tools')
+            if self.task:
+                self.task.join(timeout=0)
+                if not self.task.is_alive():
+                    self.start_check(self.file, self.page)
+                    self.task = None
+                    self.file = None
+                    self.page = None
+                    self.pdf = None
+                    self.main.find_element('status').update('准备就绪')
         self.main.close()
         if not os.listdir(ROOT):
             os.rmdir(ROOT)
@@ -76,7 +98,7 @@ class GUI:
         layout = [
             [sg.Frame('', [
                 [sg.Text('异常页：', font=('微软雅黑', 12)), ],
-                [sg.Listbox(values=[], size=(10, 37), key='-PAGE-'), ],
+                [sg.Listbox(values=[], size=(10, 37), key='-PAGE-', select_mode='LISTBOX_SELECT_MODE_SINGLE'), ],
             ], border_width=0, element_justification='center'),
              sg.Frame('', [
                  [sg.Text('预览：', font=('微软雅黑', 12)), ],
@@ -104,10 +126,8 @@ class GUI:
             pages.remove(page)
             if confirm:
                 new_log.remove(page)
-            if pages:
-                gui['-PAGE-'].update(pages)
-            else:
-                gui['-PAGE-'].update(pages)
+            gui['-PAGE-'].update(pages)
+            if not pages:
                 gui['-IMAGE-'].update('')
 
         gui = self.check_gui()
@@ -133,25 +153,17 @@ class GUI:
         print(pages, new_log)
         gui.close()
 
-    def choice_deal(self, save):
-        file = self.choice_file()
-        if file and '_正常' not in file:
-            page = self.check_xlsx(file)
-            if page:
-                pdf = file.replace('xlsx', 'pdf')
-                if os.path.exists(pdf):
-                    # task = Process(
-                    #     target=self.pdf_to_image, args=(pdf, page, save),
-                    #     daemon=True)
-                    # task.start()
-                    # task.join()
-                    self.start_check(file, page)
-                else:
-                    self.main.find_element('status').update('选择的文件所对应的 PDF 文件不存在！')
-            else:
-                self.main.find_element('status').update('选择的文件均为正常页，无需检查！')
-        else:
-            self.main.find_element('status').update('未选择文件，或选择的文件均为正常页，无需检查！')
+    def choice_deal(self):
+        self.file = self.choice_file()
+        if self.file and '_正常' not in self.file:
+            self.page = self.check_xlsx(self.file)
+            if self.page:
+                self.pdf = self.file.replace('xlsx', 'pdf')
+                if os.path.exists(self.pdf):
+                    return None
+                return '选择的文件所对应的 PDF 文件不存在！'
+            return '选择的文件均为正常页，无需检查！'
+        return '未选择文件，或选择的文件均为正常页，无需检查！'
 
     @staticmethod
     def pdf_to_image(filename, page_list, save):
@@ -159,14 +171,15 @@ class GUI:
         doc = fitz.open(filename)
         if save:
             for i in page_list:
-                img = doc[i].get_pixmap(matrix=fitz.Matrix(0.7, 0.7), alpha=False)
+                img = doc[i - 1].get_pixmap(matrix=fitz.Matrix(0.7, 0.7), alpha=False)
                 img.save(os.path.join(ROOT, "%s.png" % i))
                 fitz.TOOLS.store_shrink(100)  # 清空缓存
         else:
             for i in page_list:
-                img = doc[i].get_pixmap(matrix=fitz.Matrix(0.7, 0.7), alpha=False)
+                img = doc[i - 1].get_pixmap(matrix=fitz.Matrix(0.7, 0.7), alpha=False)
                 img.save(os.path.join(ROOT, "%s.png" % i))
         doc.close()
+        time.sleep(5)
 
     @staticmethod
     def check_xlsx(file):
