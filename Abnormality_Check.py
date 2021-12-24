@@ -94,6 +94,7 @@ class GUI:
         self.main.close()
         if not os.listdir(ROOT):
             os.rmdir(ROOT)
+        self.finished()
 
     def home(self):
         layout = [
@@ -127,7 +128,7 @@ class GUI:
              ], border_width=0, element_justification='center')],
             [sg.Button('正常页', key='-TRUE-', font=('微软雅黑', 12), tooltip='标记当前页为正常页！'),
              sg.Button('异常页', key='-FALSE-', font=('微软雅黑', 12), tooltip='标记当前页为异常页！'),
-             sg.Button('完成检查', key='-OVER-', font=('微软雅黑', 12), tooltip='保存检查结果！')],
+             sg.Button('保存结果', key='-OVER-', font=('微软雅黑', 12), tooltip='保存检查结果至 xlsx 文件！')],
         ]
         return sg.Window(
             '预览检查',
@@ -178,13 +179,16 @@ class GUI:
         [os.remove(os.path.join(ROOT, i)) for i in os.listdir(ROOT)]
         gui.close()
 
-    def update_log(self, new):
-        if new:
+    def update_log(self, sure):
+        if sure:
             xlsx = self.check_xlsx(self.file, to=False)
-            print(xlsx)
+            xlsx.drop([int(i) for i in sure], inplace=True)
+            if xlsx.empty:
+                self.log.discard(self.pdf)
+            xlsx.to_excel(self.file)
 
     def choice_deal(self):
-        self.file = self.choice_file()
+        self.file = self.choice_file().replace('/', '\\')
         if self.file and '_正常' not in self.file:
             self.page = self.check_xlsx(self.file)
             if self.page:
@@ -214,15 +218,12 @@ class GUI:
 
     @staticmethod
     def check_xlsx(file, to=True):
-        xlsx = pd.read_excel(
-            file, usecols=[
-                '页码', '状态'], dtype={
-                '页码': int, '状态': str})
+        xlsx = pd.read_excel(file, index_col=0, dtype={'状态': str})
         if xlsx.empty:
             return None
         xlsx = xlsx[(xlsx['状态'] == 'None') | (xlsx['状态'] == 'False')]
         if to:
-            return xlsx['页码'].tolist()
+            return xlsx.index.tolist()
         return xlsx
 
     def choice_file(self):
