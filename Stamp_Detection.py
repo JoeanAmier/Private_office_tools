@@ -444,6 +444,7 @@ class GUI:
             ]
             if data:
                 data = pd.DataFrame(data, columns=['页码', '状态'])
+                data = data.set_index('页码')
                 data.to_excel(f'{name}.xlsx')
             else:
                 data = pd.DataFrame([])
