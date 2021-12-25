@@ -230,7 +230,7 @@ class GUI:
                 window['choice'].update(disabled=True)
                 cache = self.choice_file()
                 if cache:
-                    [self.file.add(i) for i in cache]
+                    [self.file.add(i.replace('/', '\\')) for i in cache]
                     window.find_element('screen').update('\n'.join(self.file))
                 window['choice'].update(disabled=False)
             elif event == 'reset':
