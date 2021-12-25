@@ -417,11 +417,11 @@ class GUI:
         layout = [
             [sg.Text('已检测且包含非正常页的文件（点击选中文件）：', font=('微软雅黑', 12))],
             [sg.Listbox(values=[], size=(80, 10), key='-FILE-', select_mode='LISTBOX_SELECT_MODE_SINGLE')],
-            [sg.Button('浏览文件', key='choice', font=('微软雅黑', 12), tooltip='选择 xlsx 格式的检测结果文件，并开始预览检查！'),
+            [sg.Button('浏览文件', key='choice', font=('微软雅黑', 12), tooltip='选择 XLSX 格式的检测结果文件，并自动开始预览检查！'),
              sg.Button('检查文件', key='check', font=('微软雅黑', 12), tooltip='开始预览检查选中的 PDF 文件！'),
              sg.Button('查看工具详细说明', key='info', font=('微软雅黑', 12))],
             [sg.Checkbox('低性能模式', font=('微软雅黑', 10), key='low', pad=((480, 0), (0, 0)),
-                         tooltip='减少程序占用内存，但是会增加检测文件所用的时间\n建议低配置电脑或处理大文件时启用')],
+                         tooltip='减少程序处理文件时占用的内存，但是会增加处理文件所用的时间\n建议低配置电脑或处理大文件时启用')],
             [sg.StatusBar('准备就绪', key='status', font=('微软雅黑', 12), size=(10, 1))],
         ]
         return sg.Window(
@@ -444,7 +444,7 @@ class GUI:
              ], border_width=0, element_justification='center')],
             [sg.Button('正常页', key='-TRUE-', font=('微软雅黑', 12), tooltip='标记当前页为正常页！'),
              sg.Button('异常页', key='-FALSE-', font=('微软雅黑', 12), tooltip='标记当前页为异常页！'),
-             sg.Button('保存结果', key='-OVER-', font=('微软雅黑', 12), tooltip='保存检查结果至 xlsx 文件！')],
+             sg.Button('保存结果', key='-OVER-', font=('微软雅黑', 12), tooltip='保存检查结果至 XLSX 文件！')],
         ]
         return sg.Window(
             '预览检查',
