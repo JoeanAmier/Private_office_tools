@@ -17,8 +17,7 @@ class PHDI:
             "抽样位置：%s\n%s\n制冰机清洗消毒日期：%s",
             "饮料名称：%s\n抽样位置：%s\n%s",
             "抽样位置：%s\n器具名称：%s\n%s",
-            "抽样位置：%s"
-        ]
+            "抽样位置：%s"]
         self.link_1 = {
             '1': '餐区桌面',
             '2': '餐区服务柜',
@@ -128,7 +127,8 @@ class PHDI:
         ion = '\r\n'.join(ion) + '\r\n'
         self.cache_2 = ion
         while True:
-            info = input(f"{'=' * 50}\n下一步：\n1 将样品数据写入剪贴板\n2 将阴离子洗涤剂数据写入剪贴板\n3 返回餐厅选择\n")
+            info = input(
+                f"{'=' * 50}\n下一步：\n1 将样品数据写入剪贴板\n2 将阴离子洗涤剂数据写入剪贴板\n3 返回餐厅选择\n")
             if info == '1':
                 pyperclip.copy(self.cache_1)
                 print('样品数据已写入剪贴板！')
@@ -149,36 +149,30 @@ class PHDI:
         return f'进店时间：{cache[:2]}:{cache[2:4]}~{cache[4:6]}:{cache[6:8]}'
 
     def data(self, new_):
-        date = self.date()
-        if date:
-            link = self.link()
-            people = self.people()
-            sala = self.sala()
-            water = self.water(new_)
-            if new_:
-                water_ = self.water_()
+        if not (date := self.date()):
+            return None, None
+        link = self.link()
+        people = self.people()
+        sala = self.sala()
+        water = self.water(new_)
+        water_ = self.water_() if new_ else None
+        ice = self.ice()
+        drinks = self.drinks()
+        tableware = self.tableware()
+        if new_:
+            _ = (link, people, sala, water, water_, ice, drinks, tableware)
+        else:
+            _ = (link, people, sala, water, ice, drinks, tableware)
+        data = []
+        for x in _:
+            if x:
+                data.append(f'"{date}\n{x}"')
             else:
-                water_ = None
-            ice = self.ice()
-            drinks = self.drinks()
-            tableware = self.tableware()
-            if new_:
-                _ = (link, people, sala, water, water_, ice, drinks, tableware)
-            else:
-                _ = (link, people, sala, water, ice, drinks, tableware)
-            data = []
-            for x in _:
-                if x:
-                    data.append(f'"{date}\n{x}"')
-                else:
-                    data.append('""')
-            data = '\r\n'.join(data) + '\r\n'
-            self.cache_1 = data
-            ion = []
-            for x in self.ion_0:
-                ion.append(self.ion(x))
-            return date, ion
-        return None, None
+                data.append('""')
+        data = '\r\n'.join(data) + '\r\n'
+        self.cache_1 = data
+        ion = [self.ion(x) for x in self.ion_0]
+        return date, ion
 
     def link(self):
         link_1 = '\n'.join(f'{x[0]} {x[1]}' for x in self.link_1.items())
@@ -240,9 +234,11 @@ class PHDI:
         if not info:
             return None
         cache = info.replace(' ', '').replace('，', ',').split(',')
-        if new_ and len(cache) != 9 or not all(cache):
+        if not all(cache):
             return self.water(new_)
-        if not new_ and len(cache) != 8 or not all(cache):
+        if new_ and len(cache) != 9:
+            return self.water(new_)
+        if not new_ and len(cache) != 8:
             return self.water(new_)
         _ = (cache[3], cache[4], cache[8]) if new_ else (cache[3], cache[4])
         for i in _:
@@ -279,7 +275,8 @@ class PHDI:
         if not info:
             return None
         cache = info.replace(' ', '').replace('，', ',').split(',')
-        if len(cache) != 3 or not all(cache) or not re.match(r'\d{8}', cache[2]):
+        if len(cache) != 3 or not all(
+                cache) or not re.match(r'\d{8}', cache[2]):
             return self.ice()
         cache[0] = self.ice_1.get(cache[0], cache[0])
         cache[1] = self.ice_2.get(cache[1], cache[1])
@@ -303,7 +300,8 @@ class PHDI:
 
     def tableware(self):
         link_1 = '\n'.join(f'{x[0]} {x[1]}' for x in self.link_1.items())
-        tableware_1 = '\n'.join(f'{x[0]} {x[1]}' for x in self.tableware_1.items())
+        tableware_1 = '\n'.join(
+            f'{x[0]} {x[1]}' for x in self.tableware_1.items())
         link_3 = '\n'.join(f'{x[0]} {x[1]}' for x in self.link_3.items())
         info = input(
             f"{' 复用餐饮具 '.center(40, '*')}\n抽样位置：\n{link_1}\n器具名称：\n{tableware_1}\n消毒状态：\n{link_3}\n")
@@ -319,7 +317,8 @@ class PHDI:
 
     def ion(self, type_):
         ion_1 = '\n'.join(f'{x[0]} {x[1]}' for x in self.ion_1.items())
-        info = input(f"{f' 阴离子洗涤剂（{type_}）'.center(40, '*')}\n抽样位置：\n{ion_1}\n")
+        info = input(
+            f"{f' 阴离子洗涤剂（{type_}）'.center(40, '*')}\n抽样位置：\n{ion_1}\n")
         if not info:
             return None
         if not re.match(r'\d$|[\u4e00-\u9fa5]+$', info):
@@ -364,36 +363,30 @@ class KFC(PHDI):
         }
 
     def data(self, new_):
-        date = self.date()
-        if date:
-            link = self.link()
-            people = self.people()
-            sala = self.sala()
-            water = self.water(new_)
-            if new_:
-                water_ = self.water_()
+        if not (date := self.date()):
+            return None, None
+        link = self.link()
+        people = self.people()
+        sala = self.sala()
+        water = self.water(new_)
+        water_ = self.water_() if new_ else None
+        ice = self.ice()
+        drinks = self.drinks()
+        milk = self.milk()
+        if new_:
+            _ = (link, people, sala, water, water_, ice, drinks, milk)
+        else:
+            _ = (link, people, sala, water, ice, drinks, milk)
+        data = []
+        for x in _:
+            if x:
+                data.append(f'"{date}\n{x}"')
             else:
-                water_ = None
-            ice = self.ice()
-            drinks = self.drinks()
-            milk = self.milk()
-            if new_:
-                _ = (link, people, sala, water, water_, ice, drinks, milk)
-            else:
-                _ = (link, people, sala, water, ice, drinks, milk)
-            data = []
-            for x in _:
-                if x:
-                    data.append(f'"{date}\n{x}"')
-                else:
-                    data.append('""')
-            data = '\r\n'.join(data) + '\r\n'
-            self.cache_1 = data
-            ion = []
-            for x in self.ion_0:
-                ion.append(self.ion(x))
-            return date, ion
-        return None, None
+                data.append('""')
+        data = '\r\n'.join(data) + '\r\n'
+        self.cache_1 = data
+        ion = [self.ion(x) for x in self.ion_0]
+        return date, ion
 
     def milk(self):
         milk_1 = '\n'.join(f'{x[0]} {x[1]}' for x in self.milk_1.items())
@@ -404,7 +397,8 @@ class KFC(PHDI):
         if not info:
             return None
         cache = info.replace(' ', '').replace('，', ',').split(',')
-        if len(cache) != 5 or not all(cache) or not re.match(r'\d{8}', cache[2]):
+        if len(cache) != 5 or not all(
+                cache) or not re.match(r'\d{8}', cache[2]):
             return self.milk()
         cache[0] = self.milk_1.get(cache[0], cache[0])
         cache[1] = self.milk_2.get(cache[1], cache[1])
@@ -477,7 +471,8 @@ class CJ(PHDI):
         if not info:
             return None
         cache = info.replace(' ', '').replace('，', ',').split(',')
-        if len(cache) != 2 or not all(cache) or not re.match(r'\d{8}', cache[0]):
+        if len(cache) != 2 or not all(
+                cache) or not re.match(r'\d{8}', cache[0]):
             return self.ice()
         cache[1] = self.ice_2.get(cache[1], cache[1])
         return self.template[6] % tuple(cache)
@@ -485,7 +480,8 @@ class CJ(PHDI):
 
 def main():
     while True:
-        tm = input(f"{'=' * 50}\n请选择餐厅类型：\n1 KFC新店\n2 KFC常规\n3 PHDI新店\n4 PHDI常规\n5 C&J\n")
+        tm = input(
+            f"{'=' * 50}\n请选择餐厅类型：\n1 KFC新店\n2 KFC常规\n3 PHDI新店\n4 PHDI常规\n5 C&J\n")
         if tm == '1':
             KFC().start(new_=True)
         elif tm == '2':
