@@ -144,7 +144,7 @@ class PHDI:
         cache = input(f"{'=' * 50}\n进店时间：")
         if not cache:
             return None
-        if not re.match(r'\d{8}', cache):
+        if not re.match(r'\d{8}$', cache):
             return self.date()
         return f'进店时间：{cache[:2]}:{cache[2:4]}~{cache[4:6]}:{cache[6:8]}'
 
@@ -216,11 +216,11 @@ class PHDI:
         cache[0] = self.sala_1.get(cache[0], cache[0])
         cache[1] = self.sala_2.get(cache[1], cache[1])
         cache[2] = self.sala_3.get(cache[2], '产品制作时间：' + cache[2])
-        if len(cache[2]) > 7 and not re.match(r'产品制作时间：\d{8}', cache[2]):
+        if len(cache[2]) > 7 and not re.match(r'产品制作时间：\d{8}$', cache[2]):
             return self.sala()
         x = cache[3].split('、')
         for y in x:
-            if not re.match(r'[\u4e00-\u9fa5]+\d{8}', y):
+            if not re.match(r'[\u4e00-\u9fa5]+\d{8}$', y):
                 return self.sala()
         return self.template[2] % tuple(cache)
 
@@ -242,7 +242,7 @@ class PHDI:
             return self.water(new_)
         _ = (cache[3], cache[4], cache[8]) if new_ else (cache[3], cache[4])
         for i in _:
-            if not re.match(r'\d{8}', i):
+            if not re.match(r'\d{8}$', i):
                 return self.water(new_)
         cache[0] = self.water_1.get(cache[0], cache[0])
         cache[1] = self.water_2.get(cache[1], cache[1])
@@ -276,7 +276,7 @@ class PHDI:
             return None
         cache = info.replace(' ', '').replace('，', ',').split(',')
         if len(cache) != 3 or not all(
-                cache) or not re.match(r'\d{8}', cache[2]):
+                cache) or not re.match(r'\d{8}$', cache[2]):
             return self.ice()
         cache[0] = self.ice_1.get(cache[0], cache[0])
         cache[1] = self.ice_2.get(cache[1], cache[1])
@@ -398,7 +398,7 @@ class KFC(PHDI):
             return None
         cache = info.replace(' ', '').replace('，', ',').split(',')
         if len(cache) != 5 or not all(
-                cache) or not re.match(r'\d{8}', cache[2]):
+                cache) or not re.match(r'\d{8}$', cache[2]):
             return self.milk()
         cache[0] = self.milk_1.get(cache[0], cache[0])
         cache[1] = self.milk_2.get(cache[1], cache[1])
@@ -412,10 +412,10 @@ class CJ(PHDI):
         super().__init__()
         self.template[2] = "抽样位置：%s\n产品名称：%s"
         self.template[6] = "制冰机清洗消毒日期：%s\n%s"
-        self.link_2['3'] = '打奶钢'
-        self.water_2['3'] = '3M'
-        self.drinks_1['4'] = '冰美式'
-        self.drinks_1['5'] = '冰拿铁'
+        self.link_2[str(len(self.link_2) + 1)] = '打奶钢'
+        self.water_2[str(len(self.water_2) + 1)] = '3M'
+        self.drinks_1[str(len(self.drinks_1) + 1)] = '冰美式'
+        self.drinks_1[str(len(self.drinks_1) + 2)] = '冰拿铁'
 
     def start(self, new_=False):
         date = self.data(new_)
@@ -472,7 +472,7 @@ class CJ(PHDI):
             return None
         cache = info.replace(' ', '').replace('，', ',').split(',')
         if len(cache) != 2 or not all(
-                cache) or not re.match(r'\d{8}', cache[0]):
+                cache) or not re.match(r'\d{8}$', cache[0]):
             return self.ice()
         cache[1] = self.ice_2.get(cache[1], cache[1])
         return self.template[6] % tuple(cache)
