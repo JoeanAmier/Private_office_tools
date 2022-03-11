@@ -6,7 +6,7 @@ EXE 可执行文件均通过 Pyinstaller 打包制作。
 
 *****
 
-## 报告编辑部小工具
+## 报告编辑部小工具（专用）
 
 <details>
     <summary>安装依赖</summary>
@@ -51,7 +51,7 @@ EXE 可执行文件均通过 Pyinstaller 打包制作。
 
 </details>
 
-## 印章检测小工具
+## 印章检测小工具（专用）
 
 <details>
     <summary>安装依赖</summary>
@@ -95,7 +95,7 @@ EXE 可执行文件均通过 Pyinstaller 打包制作。
 
 </details>
 
-## 异常页面检查辅助工具
+## 异常页面检查辅助工具（专用）
 
 <details>
     <summary>安装依赖</summary>
@@ -121,4 +121,10 @@ EXE 可执行文件均通过 Pyinstaller 打包制作。
 
 </details>
 
-## 文件重命名小工具
+## 数据录入小工具（专用）
+
+暂无介绍
+
+## 文件重命名小工具（通用）
+
+未来更新
